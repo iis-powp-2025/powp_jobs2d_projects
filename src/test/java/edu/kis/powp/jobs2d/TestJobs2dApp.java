@@ -12,14 +12,16 @@ import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
 import edu.kis.powp.jobs2d.drivers.InformativeLoggerDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
+import edu.kis.powp.jobs2d.drivers.canva.WorkspaceCanva;
+import edu.kis.powp.jobs2d.drivers.canva.shapes.A4FormatCanva;
+import edu.kis.powp.jobs2d.drivers.canva.shapes.CircularCanva;
+import edu.kis.powp.jobs2d.drivers.canva.shapes.RectangleCanva;
+import edu.kis.powp.jobs2d.drivers.canva.shapes.CanvaShape;
 import edu.kis.powp.jobs2d.events.SelectLoadSecretCommandOptionListener;
 import edu.kis.powp.jobs2d.events.SelectRunCurrentCommandOptionListener;
 import edu.kis.powp.jobs2d.events.SelectTestFigure2OptionListener;
 import edu.kis.powp.jobs2d.events.SelectTestFigureOptionListener;
-import edu.kis.powp.jobs2d.features.ClicksConverter;
-import edu.kis.powp.jobs2d.features.CommandsFeature;
-import edu.kis.powp.jobs2d.features.DrawerFeature;
-import edu.kis.powp.jobs2d.features.DriverFeature;
+import edu.kis.powp.jobs2d.features.*;
 import edu.kis.powp.jobs2d.transformations.FlipTransformationDecorator;
 import edu.kis.powp.jobs2d.transformations.RotateTransformationDecorator;
 import edu.kis.powp.jobs2d.transformations.ScaleTransformationDecorator;
@@ -82,6 +84,26 @@ public class TestJobs2dApp {
         DriverFeature.addDriver("Scaled and flipped vertically special line Simulator", driver);
     }
 
+    private static void setupWorkspaces(Application application) {
+        DrawPanelController drawerController = DrawerFeature.getDrawerController();
+
+        Job2dDriver lineForShapeCanva = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
+        CanvaShape boundRectangle = new RectangleCanva(400, 400);
+        WorkspaceCanva rectangleCanvaDriver = new WorkspaceCanva(lineForShapeCanva, boundRectangle);
+        WorkspaceFeature.addWorkspaceShape("Rectangle canvas", rectangleCanvaDriver);
+
+        CanvaShape boundA4Format = new A4FormatCanva();
+        WorkspaceCanva a4FormatCanvaDriver = new WorkspaceCanva(lineForShapeCanva, boundA4Format);
+        WorkspaceFeature.addWorkspaceShape("A4 format canvas", a4FormatCanvaDriver);
+
+
+        CanvaShape boundCircular = new CircularCanva(200);
+        WorkspaceCanva circularCanvaDriver = new WorkspaceCanva(lineForShapeCanva, boundCircular);
+        WorkspaceFeature.addWorkspaceShape("My Circular canvas", circularCanvaDriver);
+
+
+    }
+
     private static void setupWindows(Application application) {
 
         CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager());
@@ -127,8 +149,13 @@ public class TestJobs2dApp {
 
                 DriverFeature.setupDriverPlugin(app);
                 setupDrivers(app);
+
+                WorkspaceFeature.setupWorkspacePlugin(app);
+                setupWorkspaces(app);
+
                 setupPresetTests(app);
                 setupCommandTests(app);
+
                 setupLogger(app);
                 setupWindows(app);
                 setupMouseHandler(app);
