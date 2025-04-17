@@ -11,7 +11,15 @@ import java.util.List;
  */
 public class ComplexCommand implements ICompoundCommand {
 
-    private final List<DriverCommand> commandList = new ArrayList<>();
+    private final List<DriverCommand> commandList;
+
+    private ComplexCommand(List<DriverCommand> commandList) {
+        this.commandList = commandList;
+    }
+
+    public ComplexCommand(){
+        this.commandList = new ArrayList<>();
+    }
 
     public void addCommand(DriverCommand command) {
         this.commandList.add(command);
@@ -75,5 +83,25 @@ public class ComplexCommand implements ICompoundCommand {
         ComplexCommand second = (ComplexCommand) obj;
 
         return commandList.equals(second.commandList);
+    }
+
+    public static class Builder {
+        private final List<DriverCommand> commands;
+
+        public Builder() {
+            this.commands = new ArrayList<>();
+        }
+
+        public ComplexCommand build() {
+            return new ComplexCommand(commands);
+        }
+
+        public void addCommand(DriverCommand command) {
+            commands.add(command);
+        }
+
+        public void addCommands(List<DriverCommand> commands) {
+            this.commands.addAll(commands);
+        }
     }
 }
