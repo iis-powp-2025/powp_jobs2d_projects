@@ -52,9 +52,6 @@ public class TestJobs2dApp {
     private static void setupCommandTests(Application application) {
         application.addTest("Load secret command", new SelectLoadSecretCommandOptionListener());
         application.addTest("Load notSecret command", new SelectLoadNotSoSecretCommandOptionListener());
-
-        application.addTest("Run command", new SelectRunCurrentCommandOptionListener(DriverFeature.getDriverManager()));
-
         application.addTest("Count subcommands", (e) -> CountCommandsTest.execute());
     }
 
@@ -72,7 +69,7 @@ public class TestJobs2dApp {
         Job2dDriver basicLineDriver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
         DriverFeature.addDriver("Line Simulator", basicLineDriver);
         DriverFeature.getDriverManager().setCurrentDriver(basicLineDriver);
-        
+
         ComplexDriver complexDriver = new ComplexDriver();
         complexDriver.add(loggerDriver);
         complexDriver.add(basicLineDriver);
@@ -149,27 +146,25 @@ public class TestJobs2dApp {
      * Launch the application.
      */
     public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                Application app = new Application("Jobs 2D");
-                DrawerFeature.setupDrawerPlugin(app);
-                CommandsFeature.setupCommandManager();
+        EventQueue.invokeLater(() -> {
+            Application app = new Application("Jobs 2D");
+            DrawerFeature.setupDrawerPlugin(app);
+            CommandsFeature.setupCommandManager();
 
-                DriverFeature.setupDriverPlugin(app);
-                setupDrivers(app);
+            DriverFeature.setupDriverPlugin(app);
+            setupDrivers(app);
 
-                WorkspaceFeature.setupWorkspacePlugin(app);
-                setupWorkspaces();
+            WorkspaceFeature.setupWorkspacePlugin(app);
+            setupWorkspaces();
 
-                setupPresetTests(app);
-                setupCommandTests(app);
+            setupPresetTests(app);
+            setupCommandTests(app);
 
-                setupLogger(app);
-                setupWindows(app);
-                setupMouseHandler(app);
+            setupLogger(app);
+            setupWindows(app);
+            setupMouseHandler(app);
 
-                app.setVisibility(true);
-            }
+            app.setVisibility(true);
         });
     }
 
