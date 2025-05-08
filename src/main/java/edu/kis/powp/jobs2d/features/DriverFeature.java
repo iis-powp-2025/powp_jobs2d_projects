@@ -1,9 +1,9 @@
 package edu.kis.powp.jobs2d.features;
 
 import edu.kis.powp.appbase.Application;
-import edu.kis.powp.jobs2d.Job2dDriver;
 import edu.kis.powp.jobs2d.drivers.DriverManager;
 import edu.kis.powp.jobs2d.drivers.SelectDriverMenuOptionListener;
+import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
 import edu.kis.powp.jobs2d.drivers.observers.DriverLabelChangeObserver;
 
 public class DriverFeature {
@@ -34,7 +34,7 @@ public class DriverFeature {
      * @param name   Button name.
      * @param driver Job2dDriver object.
      */
-    public static void addDriver(String name, Job2dDriver driver) {
+    public static void addDriver(String name, VisitableJob2dDriver driver) {
         SelectDriverMenuOptionListener listener = new SelectDriverMenuOptionListener(driver, driverManager);
         app.addComponentMenuElement(DriverFeature.class, name, listener);
     }
