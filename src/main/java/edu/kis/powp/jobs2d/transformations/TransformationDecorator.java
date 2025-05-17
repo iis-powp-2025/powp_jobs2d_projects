@@ -1,9 +1,9 @@
 package edu.kis.powp.jobs2d.transformations;
-import edu.kis.powp.jobs2d.Job2dDriver;
+import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
 
-public abstract class TransformationDecorator implements Job2dDriver {
-    protected final Job2dDriver driver;
-    public TransformationDecorator(Job2dDriver driver) {
+public abstract class TransformationDecorator implements VisitableJob2dDriver {
+    protected final VisitableJob2dDriver driver;
+    public TransformationDecorator(VisitableJob2dDriver driver) {
         this.driver = driver;
     }
 
