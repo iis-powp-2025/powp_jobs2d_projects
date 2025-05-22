@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.kis.powp.jobs2d.Job2dDriver;
 import edu.kis.powp.jobs2d.command.DriverCommand;
+import edu.kis.powp.jobs2d.command.DriverCommandVisitor;
 import edu.kis.powp.jobs2d.command.ICompoundCommand;
 import edu.kis.powp.observer.Publisher;
 
@@ -51,13 +52,16 @@ public class DriverCommandManager {
             public String toString() {
                 return name;
             }
+
+            @Override
+            public DriverCommand copy() {return this;}
         });
 
     }
 
     /**
      * Return current command.
-     * 
+     *
      * @return Current command.
      */
     public synchronized DriverCommand getCurrentCommand() {
