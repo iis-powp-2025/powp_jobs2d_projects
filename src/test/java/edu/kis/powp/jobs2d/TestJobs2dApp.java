@@ -60,9 +60,6 @@ public class TestJobs2dApp {
     private static void setupCommandTests(Application application) {
         application.addTest("Load secret command", new SelectLoadSecretCommandOptionListener());
         application.addTest("Load notSecret command", new SelectLoadNotSoSecretCommandOptionListener());
-
-        application.addTest("Run command", new SelectRunCurrentCommandOptionListener(DriverFeature.getDriverManager()));
-
         application.addTest("Count subcommands", (e) -> CountCommandsTest.execute());
         application.addTest("Count drivers", (e) -> CountDriversTest.execute());
     }
@@ -81,7 +78,7 @@ public class TestJobs2dApp {
         VisitableJob2dDriver basicLineDriver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
         DriverFeature.addDriver("Line Simulator", basicLineDriver);
         DriverFeature.getDriverManager().setCurrentDriver(basicLineDriver);
-        
+
         ComplexDriver complexDriver = new ComplexDriver();
         complexDriver.add(loggerDriver);
         complexDriver.add(basicLineDriver);
@@ -177,15 +174,15 @@ public class TestJobs2dApp {
 
                 setupWorkspaces();
 
-                setupPresetTests(app);
-                setupCommandTests(app);
 
-                setupLogger(app);
-                setupWindows(app);
-                setupMouseHandler(app);
+            setupPresetTests(app);
+            setupCommandTests(app);
 
-                app.setVisibility(true);
-            }
+            setupLogger(app);
+            setupWindows(app);
+            setupMouseHandler(app);
+
+            app.setVisibility(true);
         });
     }
 
