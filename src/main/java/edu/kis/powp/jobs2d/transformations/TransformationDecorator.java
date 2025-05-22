@@ -1,12 +1,12 @@
 package edu.kis.powp.jobs2d.transformations;
 
+import edu.kis.powp.jobs2d.drivers.AbstractDecorator;
 import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
 
-public abstract class TransformationDecorator implements VisitableJob2dDriver {
-    protected final VisitableJob2dDriver driver;
+public abstract class TransformationDecorator extends AbstractDecorator {
 
     public TransformationDecorator(VisitableJob2dDriver driver) {
-        this.driver = driver;
+        super(driver);
     }
 
     protected abstract int[] transformation(int x, int y);
@@ -23,7 +23,4 @@ public abstract class TransformationDecorator implements VisitableJob2dDriver {
         driver.operateTo(transformed[0], transformed[1]);
     }
 
-    public VisitableJob2dDriver getDriver() {
-        return driver;
-    }
 }

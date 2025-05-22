@@ -16,6 +16,7 @@ public class CountDriversTest {
             SimpleDriverCountingVisitor visitor = new SimpleDriverCountingVisitor();
             driver.accept(visitor);
             int count = visitor.getTotal();
+            visitor.reset();
             logger.info("Total driver: " + count);
         } else {
             logger.warning("No driver laoded");

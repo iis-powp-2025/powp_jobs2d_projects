@@ -2,18 +2,15 @@ package edu.kis.powp.jobs2d.drivers.visitors;
 
 import edu.kis.powp.jobs2d.drivers.ComplexDriver;
 import edu.kis.powp.jobs2d.drivers.InformativeLoggerDriver;
+import edu.kis.powp.jobs2d.drivers.AbstractDecorator;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
-import edu.kis.powp.jobs2d.drivers.monitoring.DriverMonitorDecorator;
-import edu.kis.powp.jobs2d.transformations.FlipTransformationDecorator;
-import edu.kis.powp.jobs2d.transformations.RotateTransformationDecorator;
-import edu.kis.powp.jobs2d.transformations.ScaleTransformationDecorator;
 
 public interface DriverVisitor {
     void visit(ComplexDriver dirver);
+
     void visit(InformativeLoggerDriver driver);
+
     void visit(LineDriverAdapter driver);
-    void visit(RotateTransformationDecorator decorator);
-    void visit(ScaleTransformationDecorator decorator);
-    void visit(DriverMonitorDecorator decorator);
-    void visit(FlipTransformationDecorator decorator);
+
+    void visit(AbstractDecorator decorator);
 }

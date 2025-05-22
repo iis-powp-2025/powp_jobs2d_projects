@@ -1,6 +1,5 @@
 package edu.kis.powp.jobs2d.transformations;
 import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
-import edu.kis.powp.jobs2d.drivers.visitors.DriverVisitor;
 
 public class FlipTransformationDecorator extends TransformationDecorator {
     private final boolean flipHorizontal;
@@ -17,10 +16,5 @@ public class FlipTransformationDecorator extends TransformationDecorator {
         int newX = flipHorizontal ? -x : x;
         int newY = flipVertical ? -y : y;
         return new int[] { newX, newY };
-    }
-
-    @Override
-    public void accept(DriverVisitor visitor) {
-        visitor.visit(this);
     }
 }
