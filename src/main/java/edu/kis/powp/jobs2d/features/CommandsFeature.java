@@ -1,9 +1,11 @@
 package edu.kis.powp.jobs2d.features;
 
+import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.command.manager.DriverCommandManager;
 import edu.kis.powp.jobs2d.command.manager.LoggerCommandChangeObserver;
+import edu.kis.powp.jobs2d.plugin.FeaturePlugin;
 
-public class CommandsFeature {
+public class CommandsFeature implements FeaturePlugin {
 
     private static DriverCommandManager commandManager;
 
@@ -12,6 +14,11 @@ public class CommandsFeature {
 
         LoggerCommandChangeObserver loggerObserver = new LoggerCommandChangeObserver();
         commandManager.getChangePublisher().addSubscriber(loggerObserver);
+    }
+
+    @Override
+    public void setup(Application application) {
+        setupCommandManager();
     }
 
     /**

@@ -3,8 +3,9 @@ package edu.kis.powp.jobs2d.features;
 import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.events.SelectClearPanelOptionListener;
 import edu.kis.legacy.drawer.panel.DrawPanelController;
+import edu.kis.powp.jobs2d.plugin.FeaturePlugin;
 
-public class DrawerFeature {
+public class DrawerFeature implements FeaturePlugin {
 
     private static DrawPanelController drawerController;
 
@@ -21,6 +22,11 @@ public class DrawerFeature {
         application.addComponentMenuElement(DrawPanelController.class, "Clear Panel", selectClearPanelOptionListener);
 
         drawerController.initialize(application.getFreePanel());
+    }
+
+    @Override
+    public void setup(Application application) {
+        setupDrawerPlugin(application);
     }
 
     /**
