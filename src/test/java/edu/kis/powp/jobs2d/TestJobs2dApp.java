@@ -162,8 +162,8 @@ public class TestJobs2dApp {
 
     public static void setup(Application application) {
         FeatureManager.registerFeature(new DriverFeature());
-        FeatureManager.registerFeature(new WorkspaceFeature());
         FeatureManager.registerFeature(new DrawerFeature());
+        FeatureManager.registerFeature(new WorkspaceFeature());
         FeatureManager.registerFeature(new CommandsFeature());
 
         FeatureManager.initializeAll(application);

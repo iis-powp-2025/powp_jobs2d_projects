@@ -2,9 +2,13 @@ package edu.kis.powp.jobs2d.drivers;
 
 import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.jobs2d.Job2dDriver;
+import edu.kis.powp.jobs2d.canva.ClippingJobs2dDriverDecorator;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
+import edu.kis.powp.jobs2d.drivers.observers.WorkspaceDriverChangeObserver;
 import edu.kis.powp.jobs2d.features.DrawerFeature;
+import edu.kis.powp.jobs2d.features.DriverFeature;
+
 /**
  * Manages the current drawing workspace by handling the canvas shape and its visual representation.
  * <p>
@@ -12,7 +16,7 @@ import edu.kis.powp.jobs2d.features.DrawerFeature;
  * and automatically renders its border using a special {@link Job2dDriver}.
  */
 public class WorkspaceManager {
-    private CanvaShape currentCanvaShape;
+    private final ClippingJobs2dDriverDecorator clipper;
     private final Job2dDriver borderDriver;
 
     /**
@@ -26,6 +30,7 @@ public class WorkspaceManager {
                 LineFactory.getDottedLine(),
                 "border"
         );
+        clipper = new ClippingJobs2dDriverDecorator(DriverFeature.getDriverManager().getCurrentDriver());
     }
 
     /**
@@ -36,16 +41,17 @@ public class WorkspaceManager {
      * @param canvaShape the {@link CanvaShape} to be used as the current workspace area
      */
     public synchronized void setWorkspaceCanvaShape(CanvaShape canvaShape) {
-        this.currentCanvaShape = canvaShape;
+        clipper.setCanvaShape(canvaShape);
         canvaShape.draw(borderDriver);
     }
 
     /**
-     * Returns the current canvas shape set for the workspace.
+     * Returns the clipping decorator used to enforce drawing within the canvas shape.
+     * <p>
+     * This driver can be registered as the main driver to ensure clipping is respected
+     * during user or programmatic drawing operations.
      *
-     * @return the currently active {@link CanvaShape}, or {@code null} if none is set
+     * @return the {@link ClippingJobs2dDriverDecorator} used for clipping logic
      */
-    public CanvaShape getCurrentCanvaShape() {
-        return currentCanvaShape;
-    }
+    public ClippingJobs2dDriverDecorator getClipper() { return clipper; }
 }
