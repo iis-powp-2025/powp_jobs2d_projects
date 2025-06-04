@@ -2,7 +2,10 @@ package edu.kis.powp.jobs2d.command.gui;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.*;
 
@@ -14,26 +17,23 @@ import edu.kis.powp.jobs2d.command.manager.CommandHistoryManager;
 import edu.kis.powp.jobs2d.command.manager.DriverCommandManager;
 import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
-import edu.kis.powp.jobs2d.transformations.ScaleTransformationDecorator;
-import edu.kis.powp.jobs2d.transformations.TransformationDecorator;
 import edu.kis.powp.observer.Subscriber;
 
 public class CommandManagerWindow extends JFrame implements WindowComponent {
 
-    private DriverCommandManager commandManager;
-    private VisitableJob2dDriver previewDriver;
-    private TransformationDecorator transformationDecorator;
+    private final DriverCommandManager commandManager;
+    private final VisitableJob2dDriver previewDriver;
 
-    private JTextArea currentCommandField;
+    private final JTextArea currentCommandField;
 
-    private String observerListString;
-    private JTextArea observerListField;
+    private final JTextArea observerListField;
+    private final List<Subscriber> deletedSubscriberList = new ArrayList<>();
 
-    private DrawPanelController drawPanelController;
+    private final DrawPanelController drawPanelController;
 
-    private CommandHistoryManager commandHistoryManager;
-    private JList<CommandHistoryManager.HistoryEntry> commandHistoryList;
-    private DefaultListModel<CommandHistoryManager.HistoryEntry> historyListModel;
+    private final CommandHistoryManager commandHistoryManager;
+    private final JList<CommandHistoryManager.HistoryEntry> commandHistoryList;
+    private final DefaultListModel<CommandHistoryManager.HistoryEntry> historyListModel;
 
 
 
@@ -105,10 +105,13 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         buttonConstraints.gridy = 0;
         buttonPanel.add(btnClearCommand, buttonConstraints);
 
-        JButton btnClearObservers = new JButton("Delete observers");
-        btnClearObservers.addActionListener((ActionEvent e) -> this.deleteObservers());
+        JButton btnClearOrResetObservers = new JButton("Delete observers");
+        btnClearOrResetObservers.addActionListener((ActionEvent e) -> {
+            this.deleteObservers();
+            this.toggleButtons(btnClearOrResetObservers);
+        });
         buttonConstraints.gridy = 1;
-        buttonPanel.add(btnClearObservers, buttonConstraints);
+        buttonPanel.add(btnClearOrResetObservers, buttonConstraints);
 
         JButton btnClearPanel = new JButton("Clear Panel");
         btnClearPanel.addActionListener((ActionEvent e) -> this.clearPanel());
@@ -150,13 +153,37 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         drawPanelController.initialize(drawPanel);
 
         previewDriver = new LineDriverAdapter(drawPanelController, LineFactory.getBasicLine(), "preview");
-        transformationDecorator = new ScaleTransformationDecorator(previewDriver, 3., 3.);
 
         c.fill = GridBagConstraints.BOTH;
         c.gridx = 1;
         c.gridy = 0;
         c.weightx = 0.8;
         content.add(drawPanel, c);
+    }
+
+    private void toggleButtons(JButton button) {
+        clearButtonListeners(button);
+        if(Objects.equals(button.getText(), "Delete observers")) {
+            button.setText("Reset observers");
+            button.addActionListener((ActionEvent e) -> {
+                this.resetObservers();
+                this.toggleButtons(button);
+            });
+        }
+        else{
+            button.setText("Delete observers");
+            button.addActionListener((ActionEvent e) -> {
+                this.deleteObservers();
+                this.toggleButtons(button);
+            });
+        }
+    }
+
+    private void resetObservers(){
+        for(Subscriber subscriber : deletedSubscriberList) {
+            commandManager.getChangePublisher().addSubscriber(subscriber);
+        }
+        updateObserverListField();
     }
 
     private void clearCommand() {
@@ -169,6 +196,8 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
     }
 
     public void deleteObservers() {
+        deletedSubscriberList.clear();
+        deletedSubscriberList.addAll(commandManager.getChangePublisher().getSubscribers());
         commandManager.getChangePublisher().clearObservers();
         this.updateObserverListField();
     }
@@ -189,16 +218,22 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         }
     }
 
+    private void clearButtonListeners(JButton button) {
+        for (ActionListener al : button.getActionListeners()) {
+            button.removeActionListener(al);
+        }
+    }
+
     private void updateObserverListField() {
-        observerListString = "";
+        StringBuilder observerListString = new StringBuilder();
         List<Subscriber> commandChangeSubscribers = commandManager.getChangePublisher().getSubscribers();
         for (Subscriber observer : commandChangeSubscribers) {
-            observerListString += observer.toString() + System.lineSeparator();
+            observerListString.append(observer.toString()).append(System.lineSeparator());
         }
         if (commandChangeSubscribers.isEmpty())
-            observerListString = "No observers loaded";
+            observerListString = new StringBuilder("No observers loaded");
 
-        observerListField.setText(observerListString);
+        observerListField.setText(observerListString.toString());
     }
 
     public void updateCommandHistoryField() {
@@ -220,11 +255,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
     @Override
     public void HideIfVisibleAndShowIfHidden() {
         updateObserverListField();
-        if (this.isVisible()) {
-            this.setVisible(false);
-        } else {
-            this.setVisible(true);
-        }
+        this.setVisible(!this.isVisible());
     }
 
 }
