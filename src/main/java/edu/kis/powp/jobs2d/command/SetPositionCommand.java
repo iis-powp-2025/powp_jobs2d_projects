@@ -52,5 +52,9 @@ public class SetPositionCommand implements DriverCommand {
     public void accept(DriverCommandVisitor visitor) {
         visitor.visit(this);
     }
+
+    public int getPosX() { return posX; }
+
+    public int getPosY() { return   posY; }
 }
 
