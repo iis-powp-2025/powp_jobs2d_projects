@@ -19,6 +19,7 @@ import edu.kis.powp.jobs2d.canva.shapes.CircularCanva;
 import edu.kis.powp.jobs2d.canva.shapes.RectangleCanva;
 import edu.kis.powp.jobs2d.drivers.monitoring.DriverLoggingMonitor;
 import edu.kis.powp.jobs2d.drivers.monitoring.DriverMonitorDecorator;
+import edu.kis.powp.jobs2d.drivers.monitoring.DriverMonitoringObserver;
 import edu.kis.powp.jobs2d.drivers.monitoring.DriverUsageMonitor;
 import edu.kis.powp.jobs2d.drivers.InformativeLoggerDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
@@ -100,12 +101,6 @@ public class TestJobs2dApp {
         driver = new ScaleTransformationDecorator(driver,2,2);
         driver = new FlipTransformationDecorator(driver,false,true);
         DriverFeature.addDriver("Scaled and flipped vertically special line Simulator", driver);
-
-        DriverUsageMonitor usageMonitor = new DriverUsageMonitor();
-        DriverLoggingMonitor loggingMonitor = new DriverLoggingMonitor();
-        driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
-        driver = new DriverMonitorDecorator(driver, usageMonitor, loggingMonitor);
-        DriverFeature.addDriver("Monitored Driver",driver);
     }
 
     private static void setupWorkspaces() {
