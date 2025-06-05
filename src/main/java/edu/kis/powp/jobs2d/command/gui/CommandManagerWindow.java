@@ -12,17 +12,20 @@ import javax.swing.*;
 import edu.kis.legacy.drawer.panel.DrawPanelController;
 import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.gui.WindowComponent;
+import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.manager.CommandHistoryManager;
 import edu.kis.powp.jobs2d.command.manager.DriverCommandManager;
 import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
+import edu.kis.powp.jobs2d.features.WorkspaceFeature;
 import edu.kis.powp.observer.Subscriber;
 
 public class CommandManagerWindow extends JFrame implements WindowComponent {
 
     private final DriverCommandManager commandManager;
-    private final VisitableJob2dDriver previewDriver;
+    private final VisitableJob2dDriver previewDrive
+    private VisitableJob2dDriver workspaceDriver;
 
     private final JTextArea currentCommandField;
 
@@ -34,6 +37,8 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
     private final CommandHistoryManager commandHistoryManager;
     private final JList<CommandHistoryManager.HistoryEntry> commandHistoryList;
     private final DefaultListModel<CommandHistoryManager.HistoryEntry> historyListModel;
+    private boolean isCanvaDisplayed = false;
+    private JButton btnDisplayCanva = null;
 
 
 
@@ -123,11 +128,6 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         buttonConstraints.gridy = 3;
         buttonPanel.add(btnClearPanel, buttonConstraints);
 
-        JButton btnPreviewCommand = new JButton("Preview Command");
-        btnPreviewCommand.addActionListener((ActionEvent e) -> this.previewCommand());
-        buttonConstraints.gridy = 4;
-        buttonPanel.add(btnPreviewCommand, buttonConstraints);
-
         JButton btnRefreshHistory = new JButton("Refresh Commands History");
         btnRefreshHistory.addActionListener((ActionEvent e) -> this.updateCommandHistoryField());
         buttonConstraints.gridy = 5;
@@ -137,6 +137,11 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         btnRestoreCommand.addActionListener((ActionEvent e) -> this.restoreSelectedCommand());
         buttonConstraints.gridy = 6;
         buttonPanel.add(btnRestoreCommand, buttonConstraints);
+
+        btnDisplayCanva = new JButton("Display Workspace Canva (off)");
+        btnDisplayCanva.addActionListener((ActionEvent e) -> this.changeCanvaVisibility());
+        buttonConstraints.gridy = 5;
+        buttonPanel.add(btnDisplayCanva, buttonConstraints);
 
         leftConstraints.gridy = 4;
         leftConstraints.weighty = 0.4;
@@ -158,6 +163,8 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         drawPanelController.initialize(drawPanel);
 
         previewDriver = new LineDriverAdapter(drawPanelController, LineFactory.getBasicLine(), "preview");
+
+        workspaceDriver = new LineDriverAdapter(drawPanelController, LineFactory.getDottedLine(), "workspacePreview");
 
         c.fill = GridBagConstraints.BOTH;
         c.gridx = 1;
@@ -194,6 +201,21 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
             commandManager.getChangePublisher().addSubscriber(subscriber);
         }
         updateObserverListField();
+
+    private void changeCanvaVisibility(){
+        isCanvaDisplayed = !isCanvaDisplayed;
+        if (btnDisplayCanva != null) {
+            btnDisplayCanva.setText(isCanvaDisplayed ? "Display Workspace Canva (on)" : "Display Workspace Canva (off)");
+        }
+        if (isCanvaDisplayed) {
+            displayCanva();
+        }
+    }
+
+    private void displayCanva(){
+        CanvaShape currentCanvaShape = WorkspaceFeature.getWorkspaceManager().getCurrentCanvaShape();
+        if(currentCanvaShape == null) return;
+        currentCanvaShape.draw(workspaceDriver);
     }
 
     private void clearCommand() {
@@ -218,12 +240,14 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         }
     }
 
-    private void previewCommand() {
+    public void previewCommand() {
         DriverCommand currentCommand = commandManager.getCurrentCommand();
 
         if (currentCommand != null) {
             clearPanel();
-
+            if (isCanvaDisplayed) {
+                displayCanva();
+            }
             currentCommand.execute(previewDriver);
         }
     }
