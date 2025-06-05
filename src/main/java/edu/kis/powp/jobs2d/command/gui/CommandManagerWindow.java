@@ -100,9 +100,14 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         buttonConstraints.weightx = 1;
         buttonConstraints.gridx = 0;
 
+        JButton btnRunCommand = new JButton("Run command");
+        btnRunCommand.addActionListener((ActionEvent e) -> this.runCommand());
+        buttonConstraints.gridy = 0;
+        buttonPanel.add(btnRunCommand, buttonConstraints);
+
         JButton btnClearCommand = new JButton("Clear command");
         btnClearCommand.addActionListener((ActionEvent e) -> this.clearCommand());
-        buttonConstraints.gridy = 0;
+        buttonConstraints.gridy = 1;
         buttonPanel.add(btnClearCommand, buttonConstraints);
 
         JButton btnClearOrResetObservers = new JButton("Delete observers");
@@ -110,27 +115,27 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
             this.deleteObservers();
             this.toggleButtons(btnClearOrResetObservers);
         });
-        buttonConstraints.gridy = 1;
+        buttonConstraints.gridy = 2;
         buttonPanel.add(btnClearOrResetObservers, buttonConstraints);
 
         JButton btnClearPanel = new JButton("Clear Panel");
         btnClearPanel.addActionListener((ActionEvent e) -> this.clearPanel());
-        buttonConstraints.gridy = 2;
+        buttonConstraints.gridy = 3;
         buttonPanel.add(btnClearPanel, buttonConstraints);
 
         JButton btnPreviewCommand = new JButton("Preview Command");
         btnPreviewCommand.addActionListener((ActionEvent e) -> this.previewCommand());
-        buttonConstraints.gridy = 3;
+        buttonConstraints.gridy = 4;
         buttonPanel.add(btnPreviewCommand, buttonConstraints);
 
         JButton btnRefreshHistory = new JButton("Refresh Commands History");
         btnRefreshHistory.addActionListener((ActionEvent e) -> this.updateCommandHistoryField());
-        buttonConstraints.gridy = 4;
+        buttonConstraints.gridy = 5;
         buttonPanel.add(btnRefreshHistory, buttonConstraints);
 
         JButton btnRestoreCommand = new JButton("Restore Selected Command");
         btnRestoreCommand.addActionListener((ActionEvent e) -> this.restoreSelectedCommand());
-        buttonConstraints.gridy = 5;
+        buttonConstraints.gridy = 6;
         buttonPanel.add(btnRestoreCommand, buttonConstraints);
 
         leftConstraints.gridy = 4;
@@ -159,6 +164,11 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         c.gridy = 0;
         c.weightx = 0.8;
         content.add(drawPanel, c);
+    }
+
+    private void runCommand(){
+        if (commandManager.getCurrentCommand() == null) return;
+        commandManager.getCurrentCommand().execute(commandManager.getDriver());
     }
 
     private void toggleButtons(JButton button) {

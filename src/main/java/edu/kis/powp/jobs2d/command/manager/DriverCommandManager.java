@@ -6,8 +6,8 @@ import java.util.List;
 
 import edu.kis.powp.jobs2d.Job2dDriver;
 import edu.kis.powp.jobs2d.command.DriverCommand;
-import edu.kis.powp.jobs2d.command.DriverCommandVisitor;
 import edu.kis.powp.jobs2d.command.ICompoundCommand;
+import edu.kis.powp.jobs2d.features.DriverFeature;
 import edu.kis.powp.observer.Publisher;
 
 /**
@@ -16,7 +16,7 @@ import edu.kis.powp.observer.Publisher;
 public class DriverCommandManager {
     private DriverCommand currentCommand = null;
 
-    private Publisher changePublisher = new Publisher();
+    private final Publisher changePublisher = new Publisher();
 
     private final List<DriverCommand> commandHistory = new ArrayList<>();
 
@@ -30,6 +30,10 @@ public class DriverCommandManager {
         changePublisher.notifyObservers();
     }
 
+    public synchronized Job2dDriver getDriver() {
+        return DriverFeature.getDriverManager().getCurrentDriver();
+    }
+
     /**
      * Set current command.
      * 
@@ -39,7 +43,7 @@ public class DriverCommandManager {
     public synchronized void setCurrentCommand(List<DriverCommand> commandList, String name) {
         setCurrentCommand(new ICompoundCommand() {
 
-            List<DriverCommand> driverCommands = commandList;
+            final List<DriverCommand> driverCommands = commandList;
 
             @Override
             public void execute(Job2dDriver driver) {
