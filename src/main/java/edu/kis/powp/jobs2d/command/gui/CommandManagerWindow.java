@@ -168,7 +168,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
 
     private void runCommand(){
         if (commandManager.getCurrentCommand() == null) return;
-        commandManager.getCurrentCommand().execute(commandManager.getDriver());
+        commandManager.runCommand();
     }
 
     private void toggleButtons(JButton button) {
