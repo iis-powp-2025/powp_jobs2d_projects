@@ -1,14 +1,15 @@
 package edu.kis.powp.jobs2d.drivers.monitoring;
 
-import edu.kis.powp.jobs2d.Job2dDriver;
+import edu.kis.powp.jobs2d.drivers.AbstractDecorator;
+import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
 
-public class DriverMonitorDecorator implements Job2dDriver {
-    private final Job2dDriver driver;
+public class DriverMonitorDecorator extends AbstractDecorator {
     private final DriverUsageMonitor monitor;
     private final DriverMonitor outputMonitor;
 
-    public DriverMonitorDecorator(Job2dDriver driver, DriverUsageMonitor monitor, DriverMonitor outputMonitor) {
-        this.driver = driver;
+    public DriverMonitorDecorator(VisitableJob2dDriver driver, DriverUsageMonitor monitor,
+            DriverMonitor outputMonitor) {
+        super(driver);
         this.monitor = monitor;
         this.outputMonitor = outputMonitor;
     }
@@ -17,13 +18,13 @@ public class DriverMonitorDecorator implements Job2dDriver {
     public void setPosition(int x, int y) {
         monitor.recordHeadMove(x, y);
         driver.setPosition(x, y);
-        outputMonitor.update(x,y, monitor.getHeadDistance(), monitor.getOperationDistance());
+        outputMonitor.update(x, y, monitor.getHeadDistance(), monitor.getOperationDistance());
     }
 
     @Override
     public void operateTo(int x, int y) {
         monitor.recordOperationMove(x, y);
         driver.operateTo(x, y);
-        outputMonitor.update(x,y, monitor.getHeadDistance(), monitor.getOperationDistance());
+        outputMonitor.update(x, y, monitor.getHeadDistance(), monitor.getOperationDistance());
     }
 }
