@@ -25,10 +25,11 @@ import edu.kis.powp.jobs2d.features.*;
 import edu.kis.powp.jobs2d.transformations.FlipTransformationDecorator;
 import edu.kis.powp.jobs2d.transformations.RotateTransformationDecorator;
 import edu.kis.powp.jobs2d.transformations.ScaleTransformationDecorator;
+import edu.kis.powp.jobs2d.drivers.monitoring.DriverMonitorScenario;
 
 public class TestJobs2dApp {
     private final static Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-
+    private static DriverMonitorScenario monitorScenario;
     /**
      * Setup test concerning preset figures in context.
      *
@@ -99,6 +100,8 @@ public class TestJobs2dApp {
         driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
         driver = new DriverMonitorDecorator(driver, usageMonitor, loggingMonitor);
         DriverFeature.addDriver("Monitored Driver",driver);
+
+        monitorScenario = new DriverMonitorScenario(usageMonitor, 1000,1000);
     }
 
     private static void setupWorkspaces() {
@@ -140,7 +143,18 @@ public class TestJobs2dApp {
                 (ActionEvent e) -> logger.setLevel(Level.SEVERE));
         application.addComponentMenuElement(Logger.class, "OFF logging", (ActionEvent e) -> logger.setLevel(Level.OFF));
     }
+    private static void setupDriverStates(Application application) {
+      application.addComponentMenu(Object.class, "Driver States");
 
+      application.addComponentMenuElement(Object.class, "Print usage report", (ActionEvent e) -> {
+        if (monitorScenario != null) {
+          String summary = monitorScenario.getSummaryText();
+          javax.swing.JOptionPane.showMessageDialog(null, summary, "Driver Usage Report", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        } else {
+          logger.warning("Monitor scenario is not initialized.");
+        }
+      });
+    }
     private static void setupMouseHandler(Application application) {
         new ClicksConverter(application.getFreePanel());
     }
@@ -165,6 +179,8 @@ public class TestJobs2dApp {
                 setupCommandTests(app);
 
                 setupLogger(app);
+
+                setupDriverStates(app);
                 setupWindows(app);
                 setupMouseHandler(app);
 
