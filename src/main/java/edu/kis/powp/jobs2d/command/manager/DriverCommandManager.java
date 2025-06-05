@@ -13,7 +13,7 @@ import edu.kis.powp.observer.Publisher;
 /**
  * Driver command Manager.
  */
-public class DriverCommandManager {
+public class DriverCommandManager implements ICommandManager {
     private DriverCommand currentCommand = null;
 
     private final Publisher changePublisher = new Publisher();
@@ -25,13 +25,15 @@ public class DriverCommandManager {
      * 
      * @param commandList Set the command as current.
      */
+    @Override
     public synchronized void setCurrentCommand(DriverCommand commandList) {
         this.currentCommand = commandList;
         changePublisher.notifyObservers();
     }
 
-    public synchronized Job2dDriver getDriver() {
-        return DriverFeature.getDriverManager().getCurrentDriver();
+    @Override
+    public synchronized void runCommand() {
+        currentCommand.execute(DriverFeature.getDriverManager().getCurrentDriver());
     }
 
     /**
@@ -40,6 +42,7 @@ public class DriverCommandManager {
      * @param commandList list of commands representing a compound command.
      * @param name        name of the command.
      */
+    @Override
     public synchronized void setCurrentCommand(List<DriverCommand> commandList, String name) {
         setCurrentCommand(new ICompoundCommand() {
 
@@ -71,14 +74,17 @@ public class DriverCommandManager {
      *
      * @return Current command.
      */
+    @Override
     public synchronized DriverCommand getCurrentCommand() {
         return currentCommand;
     }
 
+    @Override
     public synchronized void clearCurrentCommand() {
         currentCommand = null;
     }
 
+    @Override
     public synchronized String getCurrentCommandString() {
         if (getCurrentCommand() == null) {
             return "No command loaded";
@@ -86,6 +92,7 @@ public class DriverCommandManager {
             return getCurrentCommand().toString();
     }
 
+    @Override
     public Publisher getChangePublisher() {
         return changePublisher;
     }
