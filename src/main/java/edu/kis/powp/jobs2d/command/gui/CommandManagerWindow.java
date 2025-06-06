@@ -14,6 +14,7 @@ import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.gui.WindowComponent;
 import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
 import edu.kis.powp.jobs2d.command.DriverCommand;
+import edu.kis.powp.jobs2d.command.ICompoundCommand;
 import edu.kis.powp.jobs2d.command.manager.CommandHistoryManager;
 import edu.kis.powp.jobs2d.command.manager.DriverCommandManager;
 import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
@@ -138,11 +139,16 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         btnRestoreCommand.addActionListener((ActionEvent e) -> this.restoreSelectedCommand());
         buttonConstraints.gridy = 4;
         buttonPanel.add(btnRestoreCommand, buttonConstraints);
-
-        btnDisplayCanvas = new JButton("Display Workspace Canvas (off)");
-        btnDisplayCanvas.addActionListener((ActionEvent e) -> this.changeCanvasVisibility());
+      
+        btnDisplayCanva = new JButton("Display Workspace Canva (off)");
+        btnDisplayCanva.addActionListener((ActionEvent e) -> this.changeCanvaVisibility());
         buttonConstraints.gridy = 5;
-        buttonPanel.add(btnDisplayCanvas, buttonConstraints);
+        buttonPanel.add(btnDisplayCanva, buttonConstraints);
+      
+        JButton btnEditCommand = new JButton("Edit Current Command");
+        btnEditCommand.addActionListener((ActionEvent e) -> this.editCurrentCommand());
+        buttonConstraints.gridy = 6;
+        buttonPanel.add(btnEditCommand, buttonConstraints);
 
         leftConstraints.gridy = 4;
         leftConstraints.weighty = 0.4;
@@ -292,5 +298,21 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
     public void HideIfVisibleAndShowIfHidden() {
         updateObserverListField();
         this.setVisible(!this.isVisible());
+    }
+
+    private void editCurrentCommand() {
+        DriverCommand current = commandManager.getCurrentCommand();
+
+        if (!(current instanceof ICompoundCommand)) {
+            JOptionPane.showMessageDialog(this,
+                    "Current command is not a complex (compound) command.",
+                    "Edit Not Allowed",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        ComplexCommandEditorUI editorUI = new ComplexCommandEditorUI(commandManager);
+        editorUI.setLocationRelativeTo(this);
+        editorUI.setVisible(true);
     }
 }

@@ -63,6 +63,7 @@ public class TestJobs2dApp {
         application.addTest("Load secret command", new SelectLoadSecretCommandOptionListener());
         application.addTest("Load notSecret command", new SelectLoadNotSoSecretCommandOptionListener());
 
+
         application.addTest("Run command", new SelectRunCurrentCommandOptionListener(DriverFeature.getDriverManager()));
 
         application.addTest("Count subcommands", (e) -> CountCommandsTest.execute());
