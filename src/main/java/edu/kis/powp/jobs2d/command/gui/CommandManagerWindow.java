@@ -2,7 +2,10 @@ package edu.kis.powp.jobs2d.command.gui;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.*;
 
@@ -13,45 +16,40 @@ import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.ICompoundCommand;
 import edu.kis.powp.jobs2d.command.manager.CommandHistoryManager;
-import edu.kis.powp.jobs2d.command.manager.DriverCommandManager;
+import edu.kis.powp.jobs2d.command.manager.ICommandManager;
 import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.transformations.PointTransformation;
 import edu.kis.powp.jobs2d.transformations.ScaleTransformation;
 import edu.kis.powp.jobs2d.transformations.TransformationDriverDecorator;
 import edu.kis.powp.jobs2d.features.WorkspaceFeature;
-
 import edu.kis.powp.observer.Subscriber;
 
 public class CommandManagerWindow extends JFrame implements WindowComponent {
 
-    private DriverCommandManager commandManager;
-    private VisitableJob2dDriver previewDriver;
+    private final ICommandManager commandManager;
+    private final VisitableJob2dDriver previewDriver;
 
-    private VisitableJob2dDriver workspaceDriver;
+    private final VisitableJob2dDriver workspaceDriver;
 
-    private JTextArea currentCommandField;
+    private final JTextArea currentCommandField;
 
-    private String observerListString;
-    private JTextArea observerListField;
+    private final JTextArea observerListField;
+    private final List<Subscriber> deletedSubscriberList = new ArrayList<>();
 
-    private DrawPanelController drawPanelController;
+    private final DrawPanelController drawPanelController;
 
-    private boolean isCanvaDisplayed = false;
-    private JButton btnDisplayCanva = null;
-
-    private CommandHistoryManager commandHistoryManager;
-    private JList<CommandHistoryManager.HistoryEntry> commandHistoryList;
-    private DefaultListModel<CommandHistoryManager.HistoryEntry> historyListModel;
-
-
+    private final CommandHistoryManager commandHistoryManager;
+    private final JList<CommandHistoryManager.HistoryEntry> commandHistoryList;
+    private final DefaultListModel<CommandHistoryManager.HistoryEntry> historyListModel;
+    private boolean isCanvasDisplayed = false;
 
     /**
      * 
      */
     private static final long serialVersionUID = 9204679248304669948L;
 
-    public CommandManagerWindow(DriverCommandManager commandManager, CommandHistoryManager commandHistoryManager)
+    public CommandManagerWindow(ICommandManager commandManager, CommandHistoryManager commandHistoryManager)
     {
         this.setTitle("Command Manager");
         this.setSize(600, 400);
@@ -109,19 +107,27 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         buttonConstraints.weightx = 1;
         buttonConstraints.gridx = 0;
 
+        JButton btnRunCommand = new JButton("Run command");
+        btnRunCommand.addActionListener((ActionEvent e) -> this.runCommand());
+        buttonConstraints.gridy = 0;
+        buttonPanel.add(btnRunCommand, buttonConstraints);
+
         JButton btnClearCommand = new JButton("Clear command");
         btnClearCommand.addActionListener((ActionEvent e) -> this.clearCommand());
-        buttonConstraints.gridy = 0;
+        buttonConstraints.gridy = 1;
         buttonPanel.add(btnClearCommand, buttonConstraints);
 
-        JButton btnClearObservers = new JButton("Delete observers");
-        btnClearObservers.addActionListener((ActionEvent e) -> this.deleteObservers());
-        buttonConstraints.gridy = 1;
-        buttonPanel.add(btnClearObservers, buttonConstraints);
+        JButton btnClearOrResetObservers = new JButton("Delete observers");
+        btnClearOrResetObservers.addActionListener((ActionEvent e) -> {
+            this.deleteObservers();
+            this.toggleButtons(btnClearOrResetObservers);
+        });
+        buttonConstraints.gridy = 2;
+        buttonPanel.add(btnClearOrResetObservers, buttonConstraints);
 
         JButton btnClearPanel = new JButton("Clear Panel");
         btnClearPanel.addActionListener((ActionEvent e) -> this.clearPanel());
-        buttonConstraints.gridy = 2;
+        buttonConstraints.gridy = 3;
         buttonPanel.add(btnClearPanel, buttonConstraints);
 
         JButton btnRefreshHistory = new JButton("Refresh Commands History");
@@ -134,8 +140,8 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         buttonConstraints.gridy = 4;
         buttonPanel.add(btnRestoreCommand, buttonConstraints);
       
-        btnDisplayCanva = new JButton("Display Workspace Canva (off)");
-        btnDisplayCanva.addActionListener((ActionEvent e) -> this.changeCanvaVisibility());
+        JButton btnDisplayCanva = new JButton("Display Workspace Canva (off)");
+        btnDisplayCanva.addActionListener((ActionEvent e) -> this.changeCanvasVisibility());
         buttonConstraints.gridy = 5;
         buttonPanel.add(btnDisplayCanva, buttonConstraints);
       
@@ -166,7 +172,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         PointTransformation transformation = new ScaleTransformation(.5, .5);
         previewDriver = new LineDriverAdapter(drawPanelController, LineFactory.getBasicLine(), "preview");
         previewDriver = new TransformationDriverDecorator(previewDriver, transformation);
-      
+
         workspaceDriver = new LineDriverAdapter(drawPanelController, LineFactory.getDottedLine(), "workspacePreview");
 
         c.fill = GridBagConstraints.BOTH;
@@ -176,17 +182,44 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         content.add(drawPanel, c);
     }
 
-    private void changeCanvaVisibility(){
-        isCanvaDisplayed = !isCanvaDisplayed;
-        if (btnDisplayCanva != null) {
-            btnDisplayCanva.setText(isCanvaDisplayed ? "Display Workspace Canva (on)" : "Display Workspace Canva (off)");
+    private void runCommand(){
+        if (commandManager.getCurrentCommand() == null) return;
+        commandManager.runCommand();
+    }
+
+    private void toggleButtons(JButton button) {
+        clearButtonListeners(button);
+        if(Objects.equals(button.getText(), "Delete observers")) {
+            button.setText("Reset observers");
+            button.addActionListener((ActionEvent e) -> {
+                this.resetObservers();
+                this.toggleButtons(button);
+            });
         }
-        if (isCanvaDisplayed) {
-            displayCanva();
+        else{
+            button.setText("Delete observers");
+            button.addActionListener((ActionEvent e) -> {
+                this.deleteObservers();
+                this.toggleButtons(button);
+            });
         }
     }
 
-    private void displayCanva(){
+    private void resetObservers() {
+        for (Subscriber subscriber : deletedSubscriberList) {
+            commandManager.getChangePublisher().addSubscriber(subscriber);
+        }
+        updateObserverListField();
+    }
+
+    private void changeCanvasVisibility(){
+        isCanvasDisplayed = !isCanvasDisplayed;
+        if (isCanvasDisplayed) {
+            displayCanvas();
+        }
+    }
+
+    private void displayCanvas(){
         CanvaShape currentCanvaShape = WorkspaceFeature.getWorkspaceManager().getCurrentCanvaShape();
         if(currentCanvaShape == null) return;
         currentCanvaShape.draw(workspaceDriver);
@@ -202,6 +235,8 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
     }
 
     public void deleteObservers() {
+        deletedSubscriberList.clear();
+        deletedSubscriberList.addAll(commandManager.getChangePublisher().getSubscribers());
         commandManager.getChangePublisher().clearObservers();
         this.updateObserverListField();
     }
@@ -217,23 +252,29 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
 
         if (currentCommand != null) {
             clearPanel();
-            if (isCanvaDisplayed) {
-                displayCanva();
+            if (isCanvasDisplayed) {
+                displayCanvas();
             }
             currentCommand.execute(previewDriver);
         }
     }
 
+    private void clearButtonListeners(JButton button) {
+        for (ActionListener al : button.getActionListeners()) {
+            button.removeActionListener(al);
+        }
+    }
+
     private void updateObserverListField() {
-        observerListString = "";
+        StringBuilder observerListString = new StringBuilder();
         List<Subscriber> commandChangeSubscribers = commandManager.getChangePublisher().getSubscribers();
         for (Subscriber observer : commandChangeSubscribers) {
-            observerListString += observer.toString() + System.lineSeparator();
+            observerListString.append(observer.toString()).append(System.lineSeparator());
         }
         if (commandChangeSubscribers.isEmpty())
-            observerListString = "No observers loaded";
+            observerListString = new StringBuilder("No observers loaded");
 
-        observerListField.setText(observerListString);
+        observerListField.setText(observerListString.toString());
     }
 
     public void updateCommandHistoryField() {
