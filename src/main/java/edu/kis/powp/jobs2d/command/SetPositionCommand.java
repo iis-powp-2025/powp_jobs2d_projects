@@ -48,14 +48,6 @@ public class SetPositionCommand implements DriverCommand {
         return posY == second.posY;
     }
 
-    public int getX() {
-        return posX;
-    }
-
-    public int getY() {
-        return posY;
-    }
-
     @Override
     public void accept(DriverCommandVisitor visitor) {
         visitor.visit(this);
