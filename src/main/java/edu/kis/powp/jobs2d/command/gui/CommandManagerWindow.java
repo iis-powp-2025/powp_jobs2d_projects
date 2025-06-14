@@ -16,6 +16,7 @@ import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.ICompoundCommand;
 import edu.kis.powp.jobs2d.command.manager.CommandHistoryManager;
+import edu.kis.powp.jobs2d.command.manager.DriverCommandManager;
 import edu.kis.powp.jobs2d.command.manager.ICommandManager;
 import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
@@ -170,8 +171,10 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         drawPanelController.initialize(drawPanel);
 
         PointTransformation transformation = new ScaleTransformation(.5, .5);
-        previewDriver = new LineDriverAdapter(drawPanelController, LineFactory.getBasicLine(), "preview");
-        previewDriver = new TransformationDriverDecorator(previewDriver, transformation);
+        previewDriver = new TransformationDriverDecorator(
+                new LineDriverAdapter(drawPanelController, LineFactory.getBasicLine(), "preview"),
+                transformation
+        );
 
         workspaceDriver = new LineDriverAdapter(drawPanelController, LineFactory.getDottedLine(), "workspacePreview");
 
@@ -310,7 +313,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
             return;
         }
 
-        ComplexCommandEditorUI editorUI = new ComplexCommandEditorUI(commandManager);
+        ComplexCommandEditorUI editorUI = new ComplexCommandEditorUI((DriverCommandManager) commandManager);
         editorUI.setLocationRelativeTo(this);
         editorUI.setVisible(true);
     }
