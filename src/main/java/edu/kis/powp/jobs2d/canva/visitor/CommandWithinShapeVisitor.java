@@ -35,23 +35,37 @@ public class CommandWithinShapeVisitor implements DriverCommandVisitor {
     }
 
     /**
-     * Zwraca listę wyników sprawdzania zawierania punktów.
+     * Clears the internal list that stores the results.
+     */
+    public void reset() {
+        containsList.clear();
+    }
+
+    /**
+     * Returns the list of boolean values indicating the result of point containment checks.
+     *
+     * @return a list of booleans representing containment results for each checked point
      */
     public List<Boolean> getContainsList() {
         return containsList;
     }
 
     /**
-     * Zwraca true, jeśli wszystkie komendy były zawarte w CanvaShape.
+     * Checks whether all commands were contained within the CanvaShape.
+     *
+     * @return {@code true} if all points were contained, {@code false} otherwise
      */
     public boolean allContained() {
         return containsList.stream().allMatch(Boolean::booleanValue);
     }
 
     /**
-     * Zwraca true, jeśli przynajmniej jedna komenda była zawarta w CanvaShape.
+     * Checks whether at least one command was contained within the CanvaShape.
+     *
+     * @return {@code true} if at least one point was contained, {@code false} otherwise
      */
     public boolean anyContained() {
         return containsList.stream().anyMatch(Boolean::booleanValue);
     }
+
 }
