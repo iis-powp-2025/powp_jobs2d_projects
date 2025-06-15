@@ -28,6 +28,7 @@ import edu.kis.powp.jobs2d.features.ClicksConverter;
 import edu.kis.powp.jobs2d.features.CommandsFeature;
 import edu.kis.powp.jobs2d.features.DrawerFeature;
 import edu.kis.powp.jobs2d.features.DriverFeature;
+import edu.kis.powp.jobs2d.features.DriverMonitorFeature;
 import edu.kis.powp.jobs2d.features.WorkspaceFeature;
 import edu.kis.powp.jobs2d.plugin.FeatureManager;
 import edu.kis.powp.jobs2d.transformations.FlipTransformationDecorator;
@@ -154,7 +155,7 @@ public class TestJobs2dApp {
         FeatureManager.registerFeature(new WorkspaceFeature());
         FeatureManager.registerFeature(new DrawerFeature());
         FeatureManager.registerFeature(new CommandsFeature());
-
+        FeatureManager.registerFeature(new DriverMonitorFeature());
         FeatureManager.initializeAll(application);
     }
 

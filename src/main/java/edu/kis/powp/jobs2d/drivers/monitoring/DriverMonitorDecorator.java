@@ -7,11 +7,12 @@ public class DriverMonitorDecorator implements Job2dDriver {
     private final Job2dDriver driver;
     private final DriverUsageMonitor monitor;
     private final Publisher movePublisher = new Publisher();
-
+    private static boolean monitorEnabled = true;
     public DriverMonitorDecorator(Job2dDriver driver, DriverUsageMonitor monitor) {
         this.driver = driver;
         this.monitor = monitor;
     }
+
 
     @Override
     public void setPosition(int x, int y) {
@@ -19,7 +20,7 @@ public class DriverMonitorDecorator implements Job2dDriver {
         driver.setPosition(x, y);
         //outputMonitor.update(x,y, monitor.getHeadDistance(), monitor.getOperationDistance());
 
-        movePublisher.notifyObservers();
+        if(monitorEnabled) movePublisher.notifyObservers();
     }
 
     @Override
@@ -28,10 +29,13 @@ public class DriverMonitorDecorator implements Job2dDriver {
         driver.operateTo(x, y);
         //outputMonitor.update(x,y, monitor.getHeadDistance(), monitor.getOperationDistance());
 
-        movePublisher.notifyObservers();
+         if(monitorEnabled) movePublisher.notifyObservers();
     }
 
     public Publisher getMovePublisher(){
         return movePublisher;
+    }
+    public static void setMonitorEnabled(boolean enabled) {
+        monitorEnabled = enabled;
     }
 }
