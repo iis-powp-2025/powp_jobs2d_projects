@@ -31,6 +31,7 @@ import edu.kis.powp.jobs2d.features.ClicksConverter;
 import edu.kis.powp.jobs2d.features.CommandsFeature;
 import edu.kis.powp.jobs2d.features.DrawerFeature;
 import edu.kis.powp.jobs2d.features.DriverFeature;
+import edu.kis.powp.jobs2d.features.DriverMonitorFeature;
 import edu.kis.powp.jobs2d.features.WorkspaceFeature;
 import edu.kis.powp.jobs2d.plugin.FeatureManager;
 import edu.kis.powp.jobs2d.transformations.*;
@@ -62,7 +63,6 @@ public class TestJobs2dApp {
     private static void setupCommandTests(Application application) {
         application.addTest("Load secret command", new SelectLoadSecretCommandOptionListener());
         application.addTest("Load notSecret command", new SelectLoadNotSoSecretCommandOptionListener());
-
 
         application.addTest("Run command", new SelectRunCurrentCommandOptionListener(DriverFeature.getDriverManager()));
 
@@ -118,12 +118,6 @@ public class TestJobs2dApp {
         driver = new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special");
         driver = new TransformationDriverDecorator(driver, composite2);
         DriverFeature.addDriver("Scaled and flipped vertically special line Simulator", driver);
-
-        DriverUsageMonitor usageMonitor = new DriverUsageMonitor();
-        DriverLoggingMonitor loggingMonitor = new DriverLoggingMonitor();
-        driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
-        driver = new DriverMonitorDecorator(driver, usageMonitor, loggingMonitor);
-        DriverFeature.addDriver("Monitored Driver",driver);
 
         driver = new RealTimeDecoratorDriver(new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic"), application.getFreePanel(), 30, 10);
         DriverFeature.addDriver("Basic line Simulator with real time drawing", driver);
@@ -186,6 +180,7 @@ public class TestJobs2dApp {
         FeatureManager.registerFeature(new WorkspaceFeature());
         FeatureManager.registerFeature(new CommandsFeature());
 
+        FeatureManager.registerFeature(new DriverMonitorFeature());
         FeatureManager.initializeAll(application);
     }
 

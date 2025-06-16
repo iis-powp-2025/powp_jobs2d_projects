@@ -1,30 +1,48 @@
 package edu.kis.powp.jobs2d.drivers.monitoring;
 
-import edu.kis.powp.jobs2d.drivers.AbstractDecorator;
+import edu.kis.powp.jobs2d.Job2dDriver;
 import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
+import edu.kis.powp.jobs2d.drivers.visitors.DriverVisitor;
+import edu.kis.powp.observer.Publisher;
 
-public class DriverMonitorDecorator extends AbstractDecorator {
+
+public class DriverMonitorDecorator implements VisitableJob2dDriver {
+    private final VisitableJob2dDriver driver;
     private final DriverUsageMonitor monitor;
-    private final DriverMonitor outputMonitor;
-
-    public DriverMonitorDecorator(VisitableJob2dDriver driver, DriverUsageMonitor monitor,
-            DriverMonitor outputMonitor) {
-        super(driver);
+    private final Publisher movePublisher = new Publisher();
+    private static boolean monitorEnabled = true;
+    public DriverMonitorDecorator(VisitableJob2dDriver driver, DriverUsageMonitor monitor) {
+        this.driver = driver;
         this.monitor = monitor;
-        this.outputMonitor = outputMonitor;
     }
 
     @Override
     public void setPosition(int x, int y) {
         monitor.recordHeadMove(x, y);
         driver.setPosition(x, y);
-        outputMonitor.update(x, y, monitor.getHeadDistance(), monitor.getOperationDistance());
+        //outputMonitor.update(x,y, monitor.getHeadDistance(), monitor.getOperationDistance());
+
+        if(monitorEnabled) movePublisher.notifyObservers();
     }
 
     @Override
     public void operateTo(int x, int y) {
         monitor.recordOperationMove(x, y);
         driver.operateTo(x, y);
-        outputMonitor.update(x, y, monitor.getHeadDistance(), monitor.getOperationDistance());
+        //outputMonitor.update(x,y, monitor.getHeadDistance(), monitor.getOperationDistance());
+
+         if(monitorEnabled) movePublisher.notifyObservers();
+    }
+
+    public Publisher getMovePublisher(){
+        return movePublisher;
+    }
+    public static void setMonitorEnabled(boolean enabled) {
+        monitorEnabled = enabled;
+    }
+
+    @Override
+    public void accept(DriverVisitor visitor) {
+        driver.accept(visitor);
     }
 }
