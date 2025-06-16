@@ -14,24 +14,40 @@ public class OperateToCommand implements DriverCommand {
         this.posY = posY;
     }
 
+    public int getX() {
+        return posX;
+    }
+
+    public int getY() {
+        return posY;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("OperateToCommand (x=%d, y=%d)", getX(), getY());
+    }
+
     @Override
     public void execute(Job2dDriver driver) {
         driver.operateTo(posX, posY);
     }
 
     @Override
-    public DriverCommand copy(){
-        return new OperateToCommand(this.posX,this.posY);
+    public DriverCommand copy() {
+        return new OperateToCommand(this.posX, this.posY);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof OperateToCommand)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof OperateToCommand))
+            return false;
 
         OperateToCommand second = (OperateToCommand) o;
 
-        if (posX != second.posX) return false;
+        if (posX != second.posX)
+            return false;
         return posY == second.posY;
     }
 

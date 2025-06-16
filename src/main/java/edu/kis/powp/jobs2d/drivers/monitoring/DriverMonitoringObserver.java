@@ -3,6 +3,7 @@ package edu.kis.powp.jobs2d.drivers.monitoring;
 import edu.kis.powp.appbase.Application;
 import edu.kis.powp.jobs2d.Job2dDriver;
 import edu.kis.powp.jobs2d.drivers.DriverManager;
+import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
 import edu.kis.powp.jobs2d.features.DriverFeature;
 import edu.kis.powp.observer.Subscriber;
 
@@ -17,7 +18,7 @@ public class DriverMonitoringObserver implements Subscriber {
 
     @Override
     public void update() {
-        Job2dDriver driver = DriverFeature.getDriverManager().getCurrentDriver();
+        VisitableJob2dDriver driver = DriverFeature.getDriverManager().getCurrentDriver();
 
         if (!(driver instanceof DriverMonitorDecorator)) {
             DriverUsageMonitor usageMonitor = new DriverUsageMonitor();

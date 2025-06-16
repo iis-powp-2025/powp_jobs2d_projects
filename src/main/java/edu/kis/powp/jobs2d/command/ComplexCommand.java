@@ -1,10 +1,10 @@
 package edu.kis.powp.jobs2d.command;
 
-import edu.kis.powp.jobs2d.Job2dDriver;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import edu.kis.powp.jobs2d.Job2dDriver;
 
 /**
  * Implementation of ICompoundCommand for running multiple commands.
@@ -17,7 +17,7 @@ public class ComplexCommand implements ICompoundCommand {
         this.commandList = commandList;
     }
 
-    public ComplexCommand(){
+    public ComplexCommand() {
         this.commandList = new ArrayList<>();
     }
 
@@ -25,36 +25,36 @@ public class ComplexCommand implements ICompoundCommand {
         this.commandList.add(command);
     }
 
-    public void addCommand(int index, DriverCommand command){
+    public void addCommand(int index, DriverCommand command) {
         this.commandList.add(index, command);
     }
 
-    public void removeCommand(int index){
+    public void removeCommand(int index) {
         this.commandList.remove(index);
     }
 
-    public void removeLastCommand(){
-        this.commandList.remove(this.commandList.size()-1);
+    public void removeLastCommand() {
+        this.commandList.remove(this.commandList.size() - 1);
     }
 
-    public void setCommand(int index, DriverCommand command){
+    public void setCommand(int index, DriverCommand command) {
         this.commandList.set(index, command);
     }
 
-    public void clear(){
+    public void clear() {
         this.commandList.clear();
     }
 
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return this.commandList.isEmpty();
     }
 
-    public int size(){
+    public int size() {
         return this.commandList.size();
     }
 
     @Override
-    public void execute(Job2dDriver driver){
+    public void execute(Job2dDriver driver) {
         for (DriverCommand command : commandList) {
             command.execute(driver);
         }
@@ -77,8 +77,10 @@ public class ComplexCommand implements ICompoundCommand {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
 
         ComplexCommand second = (ComplexCommand) obj;
 

@@ -2,9 +2,11 @@ package edu.kis.powp.jobs2d.drivers;
 
 import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.jobs2d.Job2dDriver;
+import edu.kis.powp.jobs2d.canva.ClippingJobs2dDriverDecorator;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
 import edu.kis.powp.jobs2d.features.DrawerFeature;
+
 /**
  * Manages the current drawing workspace by handling the canvas shape and its visual representation.
  * <p>
@@ -12,15 +14,15 @@ import edu.kis.powp.jobs2d.features.DrawerFeature;
  * and automatically renders its border using a special {@link Job2dDriver}.
  */
 public class WorkspaceManager {
-    private CanvaShape currentCanvaShape;
     private final Job2dDriver borderDriver;
+    private CanvaShape canvaShape;
 
     /**
      * Constructs a new {@code WorkspaceManager} with a preconfigured border drawing driver.
      * <p>
      * The border driver uses a dotted line and is labeled "border".
      */
-    public WorkspaceManager() {
+    public WorkspaceManager(ClippingJobs2dDriverDecorator clipper) {
         borderDriver = new LineDriverAdapter(
                 DrawerFeature.getDrawerController(),
                 LineFactory.getDottedLine(),
@@ -36,8 +38,8 @@ public class WorkspaceManager {
      * @param canvaShape the {@link CanvaShape} to be used as the current workspace area
      */
     public synchronized void setWorkspaceCanvaShape(CanvaShape canvaShape) {
-        this.currentCanvaShape = canvaShape;
-        canvaShape.draw(borderDriver);
+        this.canvaShape = canvaShape;
+        this.canvaShape.draw(borderDriver);
     }
 
     /**
@@ -45,7 +47,5 @@ public class WorkspaceManager {
      *
      * @return the currently active {@link CanvaShape}, or {@code null} if none is set
      */
-    public CanvaShape getCurrentCanvaShape() {
-        return currentCanvaShape;
-    }
+    public CanvaShape getCurrentCanvaShape() { return canvaShape; }
 }
