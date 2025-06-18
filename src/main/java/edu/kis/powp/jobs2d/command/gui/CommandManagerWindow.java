@@ -10,21 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 
 import edu.kis.legacy.drawer.panel.DrawPanelController;
 import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.gui.WindowComponent;
 import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
+import edu.kis.powp.jobs2d.command.CommandLoader;
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.ICompoundCommand;
 import edu.kis.powp.jobs2d.command.manager.CommandHistoryManager;
@@ -47,6 +39,8 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
     private final JTextArea currentCommandField;
 
     private final JTextArea observerListField;
+
+    private final JTextField fileNameField;
     private final List<Subscriber> deletedSubscriberList = new ArrayList<>();
 
     private final DrawPanelController drawPanelController;
@@ -160,6 +154,19 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         btnEditCommand.addActionListener((ActionEvent e) -> this.editCurrentCommand());
         buttonConstraints.gridy = 6;
         buttonPanel.add(btnEditCommand, buttonConstraints);
+
+        JLabel fileNameLabel = new JLabel("File Name:");
+        buttonConstraints.gridy = 7;
+        buttonPanel.add(fileNameLabel, buttonConstraints);
+
+        fileNameField = new JTextField("");
+        buttonConstraints.gridy = 8;
+        buttonPanel.add(fileNameField, buttonConstraints);
+
+        JButton btnLoadCommands = new JButton("Load Commands From File");
+        btnLoadCommands.addActionListener((ActionEvent e) -> this.loadCommandsFromFile());
+        buttonConstraints.gridy = 9;
+        buttonPanel.add(btnLoadCommands, buttonConstraints);
 
         leftConstraints.gridy = 4;
         leftConstraints.weighty = 0.4;
@@ -323,5 +330,14 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         ComplexCommandEditorUI editorUI = new ComplexCommandEditorUI(commandManager);
         editorUI.setLocationRelativeTo(this);
         editorUI.setVisible(true);
+    }
+
+    private void loadCommandsFromFile() {
+        String fileName = fileNameField.getText();
+
+        commandManager.setCurrentCommand(
+                CommandLoader.loadCommandsFromJson(fileName),
+                fileName
+        );
     }
 }
