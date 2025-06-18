@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import edu.kis.powp.jobs2d.Job2dDriver;
+import edu.kis.powp.jobs2d.command.visitor.ComplexCommandDeepCopyVisitor;
 
 /**
  * Implementation of ICompoundCommand for running multiple commands.
@@ -67,12 +68,9 @@ public class ComplexCommand implements ICompoundCommand {
 
     @Override
     public DriverCommand copy() {
-        ComplexCommand newComplexCommand = new ComplexCommand();
-        Iterator<DriverCommand> iterator = this.iterator();
-        while (iterator.hasNext()) {
-            newComplexCommand.addCommand(iterator.next().copy());
-        }
-        return newComplexCommand;
+        ComplexCommandDeepCopyVisitor visitor = new ComplexCommandDeepCopyVisitor();
+        this.accept(visitor);
+        return visitor.getCopy();
     }
 
     @Override
@@ -94,16 +92,18 @@ public class ComplexCommand implements ICompoundCommand {
             this.commands = new ArrayList<>();
         }
 
+        public Builder addCommand(DriverCommand command) {
+            commands.add(command);
+            return this;
+        }
+
+        public Builder addCommands(List<DriverCommand> commands) {
+            this.commands.addAll(commands);
+            return this;
+        }
+
         public ComplexCommand build() {
             return new ComplexCommand(commands);
-        }
-
-        public void addCommand(DriverCommand command) {
-            commands.add(command);
-        }
-
-        public void addCommands(List<DriverCommand> commands) {
-            this.commands.addAll(commands);
         }
     }
 }
