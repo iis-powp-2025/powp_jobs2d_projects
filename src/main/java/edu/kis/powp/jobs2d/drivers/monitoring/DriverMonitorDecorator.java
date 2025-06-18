@@ -8,17 +8,25 @@ public class DriverMonitorDecorator extends AbstractDecorator {
     private final DriverUsageMonitor monitor;
     private final DriverMonitor outputMonitor;
     private final DriverParameters driverParameters;
+    private final DriverEventManager eventManager;
 
-    public DriverMonitorDecorator(VisitableJob2dDriver driver, DriverUsageMonitor monitor,
-                                  DriverMonitor outputMonitor, DriverParameters driverParameters) {
+
+    public DriverMonitorDecorator(
+            VisitableJob2dDriver driver,
+            DriverUsageMonitor monitor,
+            DriverMonitor outputMonitor,
+            DriverParameters driverParameters,
+            DriverEventManager eventManager
+    ) {
         super(driver);
         this.monitor = monitor;
         this.outputMonitor = outputMonitor;
         this.driverParameters = driverParameters;
+        this.eventManager = eventManager;
     }
 
     private void triggerEvent(DriverEventType eventType) {
-        DriverEventManager.getInstance().triggerEvent(eventType);
+        eventManager.triggerEvent(eventType);
     }
 
     @Override

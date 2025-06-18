@@ -125,48 +125,19 @@ public class TestJobs2dApp {
         DriverUsageMonitor usageMonitor = new DriverUsageMonitor();
         DriverLoggingMonitor loggingMonitor = new DriverLoggingMonitor();
         DriverParameters driverParameters = new DriverParameters(2000, 2000);
+        DriverEventManager eventManager = new DriverEventManager();
+
         driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
-        driver = new DriverMonitorDecorator(driver, usageMonitor, loggingMonitor, driverParameters);
-        DriverFeature.addDriver("Monitored Driver",driver);
+        driver = new DriverMonitorDecorator(driver, usageMonitor, loggingMonitor, driverParameters, eventManager);
+        DriverFeature.addDriver("Monitored Driver", driver);
+        SwingPopupPrompt prompt = new SwingPopupPrompt();
+        EventPopupHandler eventHandler = new EventPopupHandler(usageMonitor, prompt);
+        eventHandler.registerAll(eventManager);
 
         driver = new RealTimeDecoratorDriver(new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic"), application.getFreePanel(), 30, 10);
         DriverFeature.addDriver("Basic line Simulator with real time drawing", driver);
         driver = new RealTimeDecoratorDriver(new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special"), application.getFreePanel(), 30, 10);
         DriverFeature.addDriver("Special line Simulator with real time drawing", driver);
-
-        DriverEventManager eventManager = DriverEventManager.getInstance();
-
-        eventManager.registerListener(DriverEventManager.DriverEventType.OP_DISTANCE_EXCEEDED, () -> {
-            int option = JOptionPane.showOptionDialog(
-                    null,
-                    "Przekroczono maksymalny dystans operacyjny. Czy chcesz uzupełnić zasoby?",
-                    "Zdarzenie kierowcy - Operacyjny",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE,
-                    null,
-                    new String[]{"Uzupełnij", "Nie"},
-                    "Uzupełnij"
-            );
-            if (option == JOptionPane.YES_OPTION) {
-                usageMonitor.resetOpDistance();
-            }
-        });
-
-        eventManager.registerListener(DriverEventManager.DriverEventType.HEAD_DISTANCE_EXCEEDED, () -> {
-            int option = JOptionPane.showOptionDialog(
-                    null,
-                    "Przekroczono maksymalny dystans przesunięcia głowicy. Czy chcesz uzupełnić zasoby?",
-                    "Zdarzenie kierowcy - Head",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE,
-                    null,
-                    new String[]{"Uzupełnij", "Nie"},
-                    "Uzupełnij"
-            );
-            if (option == JOptionPane.YES_OPTION) {
-                usageMonitor.resetHeadDistance();
-            }
-        });
 
     }
 

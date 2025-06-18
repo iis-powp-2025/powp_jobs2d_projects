@@ -9,21 +9,12 @@ public class DriverEventManager {
         OP_DISTANCE_EXCEEDED
     }
 
-    private static DriverEventManager instance;
-
     private final Map<DriverEventType, List<Runnable>> listeners = new EnumMap<>(DriverEventType.class);
 
-    private DriverEventManager() {
+    public DriverEventManager() {
         for (DriverEventType type : DriverEventType.values()) {
             listeners.put(type, new ArrayList<>());
         }
-    }
-
-    public static DriverEventManager getInstance() {
-        if (instance == null) {
-            instance = new DriverEventManager();
-        }
-        return instance;
     }
 
     public void registerListener(DriverEventType type, Runnable listener) {
