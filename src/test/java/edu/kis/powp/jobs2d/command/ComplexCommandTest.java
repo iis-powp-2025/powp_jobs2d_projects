@@ -138,6 +138,40 @@ class ComplexCommandTest {
         }
     }
 
+    static void testComplexCopy() {
+        ComplexCommand command = new ComplexCommand.Builder()
+                .addCommand(new SetPositionCommand(0, 0))
+                .addCommand(new OperateToCommand(10, 10))
+                .addCommand(new OperateToCommand(20, 20))
+                .addCommand(new SetPositionCommand(0, 0))
+                .build();
+
+        ComplexCommand copy = (ComplexCommand) command.copy();
+
+        Iterator<DriverCommand> originalIterator = command.iterator();
+        Iterator<DriverCommand> copyIterator = copy.iterator();
+
+        while (originalIterator.hasNext() && copyIterator.hasNext()) {
+            DriverCommand originalCommand = originalIterator.next();
+            DriverCommand copyCommand = copyIterator.next();
+
+            if (!originalCommand.equals(copyCommand)) {
+                System.out.println("testComplexCopy: Commands are not equal!");
+                return;
+            } else if (originalCommand == copyCommand) {
+                System.out.println("testComplexCopy: Commands are the same instance, copy failed!");
+                return;
+            }
+        }
+
+        if (originalIterator.hasNext() || copyIterator.hasNext()) {
+            System.out.println("testComplexCopy: Number of commands differ between original and copy!");
+            return;
+        }
+
+        System.out.println("testComplexCopy passed");
+    }
+
     static void testRemoveLastCommand() {
         ComplexCommand command = new ComplexCommand();
         command.addCommand(new SetPositionCommand(0, 0));
@@ -205,6 +239,7 @@ class ComplexCommandTest {
         testIsEmpty();
         testClear();
         testCopy();
+        testComplexCopy();
         testBuilderAddCommand();
         testBuilderAddCommands();
         testEquals();
