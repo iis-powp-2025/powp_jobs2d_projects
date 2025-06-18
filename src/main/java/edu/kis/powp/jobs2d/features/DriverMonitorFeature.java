@@ -6,22 +6,29 @@ import edu.kis.powp.jobs2d.plugin.FeaturePlugin;
 
 public class DriverMonitorFeature implements FeaturePlugin {
     private static Application app;
-    
 
     public static void setupDriverMonitorPlugin(Application application) {
+
+
+
+
         app = application;
         app.addComponentMenu(DriverMonitorFeature.class, "Driver Monitor");
-        app.addComponentMenuElement(DriverMonitorFeature.class, "Enable Driver Monitor", (e) -> enableMonitor(true));
-        app.addComponentMenuElement(DriverMonitorFeature.class, "Disable Driver Monitor", (e) -> enableMonitor(false));
+        app.addComponentMenuElementWithCheckBox(DriverMonitorFeature.class, "Driver Monitor", (e) -> toggleDriverMonitor(), true);    
     }
 
+    public static void toggleDriverMonitor() {
+        boolean currentState = DriverMonitorDecorator.isMonitorEnabled();
+        setMonitorState(!currentState);
+        app.updateInfo(String.format("Driver Monitor is now %s", currentState ? "disabled" : "enabled"));
+    }
     @Override
     public void setup(Application application) {
         setupDriverMonitorPlugin(application);
     }
 
 
-    private static void enableMonitor(boolean enable) {
-       DriverMonitorDecorator.setMonitorEnabled(enable);
+    private static void setMonitorState(boolean state) {
+        DriverMonitorDecorator.setMonitorEnabled(state);
     }
 }
