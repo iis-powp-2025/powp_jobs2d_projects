@@ -41,4 +41,8 @@ public class DriverUsageMonitor {
     public void resetOpDistance() {
         opDistance = 0;
     }
+
+    public void setOperationDistnce(int opDistance) {
+        opDistance = opDistance;
+    }
 }

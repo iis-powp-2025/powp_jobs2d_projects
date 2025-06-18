@@ -23,11 +23,14 @@ public class DriverMonitorDecorator extends AbstractDecorator {
 
     @Override
     public void setPosition(int x, int y) {
+
         monitor.recordHeadMove(x, y);
 
         if (monitor.getHeadDistance() > driverParameters.getMaxHeadDistance()) {
             triggerEvent(DriverEventType.HEAD_DISTANCE_EXCEEDED);
-            return;
+            if (monitor.getHeadDistance() !=0 ){
+                return;
+            }
         }
 
         driver.setPosition(x, y);
@@ -40,7 +43,9 @@ public class DriverMonitorDecorator extends AbstractDecorator {
 
         if (monitor.getOperationDistance() > driverParameters.getMaxOperationDistance()) {
             triggerEvent(DriverEventType.OP_DISTANCE_EXCEEDED);
-            return;
+            if (monitor.getOperationDistance() !=0 ){
+                return;
+            }
         }
 
         driver.operateTo(x, y);
