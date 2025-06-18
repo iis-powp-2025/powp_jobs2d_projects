@@ -6,13 +6,11 @@ import edu.kis.powp.observer.Publisher;
 
 
 public class DriverMonitorDecorator extends AbstractDecorator {
-    protected VisitableJob2dDriver driver;
     private final DriverUsageMonitor monitor;
     private final Publisher movePublisher = new Publisher();
     private static boolean monitorEnabled = true;
     public DriverMonitorDecorator(VisitableJob2dDriver driver, DriverUsageMonitor monitor) {
         super(driver);
-        this.driver = driver;
         this.monitor = monitor;
     }
     public static boolean isMonitorEnabled() {
