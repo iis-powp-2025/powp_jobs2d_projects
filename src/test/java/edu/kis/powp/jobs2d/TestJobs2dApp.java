@@ -19,13 +19,12 @@ import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
 import edu.kis.powp.jobs2d.canva.shapes.CircularCanva;
 import edu.kis.powp.jobs2d.canva.shapes.RectangleCanva;
 import edu.kis.powp.jobs2d.drivers.RealTimeDecoratorDriver;
-import edu.kis.powp.jobs2d.drivers.monitoring.DriverLoggingMonitor;
-import edu.kis.powp.jobs2d.drivers.monitoring.DriverMonitorDecorator;
-import edu.kis.powp.jobs2d.drivers.monitoring.DriverUsageMonitor;
+import edu.kis.powp.jobs2d.drivers.monitoring.*;
 import edu.kis.powp.jobs2d.drivers.InformativeLoggerDriver;
 import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.events.*;
+import edu.kis.powp.jobs2d.drivers.monitoring.DriverEventManager;
 import edu.kis.powp.jobs2d.features.ClicksConverter;
 import edu.kis.powp.jobs2d.features.CommandsFeature;
 import edu.kis.powp.jobs2d.features.DrawerFeature;
@@ -34,6 +33,8 @@ import edu.kis.powp.jobs2d.features.DriverMonitorFeature;
 import edu.kis.powp.jobs2d.features.WorkspaceFeature;
 import edu.kis.powp.jobs2d.plugin.FeatureManager;
 import edu.kis.powp.jobs2d.transformations.*;
+
+import javax.swing.*;
 
 
 public class TestJobs2dApp {
@@ -121,10 +122,56 @@ public class TestJobs2dApp {
         driver = new TransformationDriverDecorator(driver, composite2);
         DriverFeature.addDriver("Scaled and flipped vertically special line Simulator", driver);
 
+        DriverUsageMonitor usageMonitor = new DriverUsageMonitor();
+        DriverLoggingMonitor loggingMonitor = new DriverLoggingMonitor();
+        DriverParameters driverParameters = new DriverParameters(2000, 2000);
+        DriverEventManager eventManager = new DriverEventManager();
+
+        DriverLimitValidator validator = new DriverLimitValidator(driverParameters, eventManager);
+        usageMonitor.addObserver(validator);
+
+        driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
+        DriverMonitoringConfig config = new DriverMonitoringConfig.Builder()
+                .withDriverParameters(driverParameters)
+                .withEventManager(eventManager)
+                .withOutputMonitor(loggingMonitor)
+                .build();
+
+        driver = new DriverMonitorDecorator(driver, usageMonitor, config);
+
+        DriverFeature.addDriver("Monitored Driver", driver);
+        SwingPopupPrompt prompt = new SwingPopupPrompt();
+        EventPopupHandler eventHandler = new EventPopupHandler(usageMonitor, prompt);
+        eventHandler.registerAll(eventManager);
+
+        DriverUsageMonitor usageMonitor2 = new DriverUsageMonitor();
+        DriverLoggingMonitor loggingMonitor2 = new DriverLoggingMonitor();
+        DriverParameters driverParameters2 = new DriverParameters(5000, 3000);
+        DriverEventManager eventManager2 = new DriverEventManager();
+
+        DriverLimitValidator validator2 = new DriverLimitValidator(driverParameters2, eventManager2);
+        usageMonitor2.addObserver(validator2);
+
+        driver = new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special");
+        DriverMonitoringConfig config2 = new DriverMonitoringConfig.Builder()
+                .withDriverParameters(driverParameters2)
+                .withEventManager(eventManager2)
+                .withOutputMonitor(loggingMonitor2)
+                .build();
+
+        driver = new DriverMonitorDecorator(driver, usageMonitor2, config2);
+
+        DriverFeature.addDriver("Advanced Monitored Driver", driver);
+
+        SwingPopupPrompt prompt2 = new SwingPopupPrompt();
+        EventPopupHandler eventHandler2 = new EventPopupHandler(usageMonitor2, prompt2);
+        eventHandler2.registerAll(eventManager2);
+
         driver = new RealTimeDecoratorDriver(new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic"), application.getFreePanel(), 30, 10);
         DriverFeature.addDriver("Basic line Simulator with real time drawing", driver);
         driver = new RealTimeDecoratorDriver(new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special"), application.getFreePanel(), 30, 10);
         DriverFeature.addDriver("Special line Simulator with real time drawing", driver);
+
     }
 
     private static void setupWorkspaces() {
