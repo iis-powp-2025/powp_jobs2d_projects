@@ -14,7 +14,6 @@ public class DriverMonitorDecorator extends AbstractDecorator {
     private final DriverUsageMonitor monitor;
     private final Publisher movePublisher = new Publisher();
     private final DriverMonitoringConfig config;
-    private final DriverLimitValidator validator;
 
     private static boolean globalMonitorEnabled = true;
 
@@ -22,25 +21,10 @@ public class DriverMonitorDecorator extends AbstractDecorator {
         super(driver);
         this.monitor = Objects.requireNonNull(monitor, "Monitor cannot be null");
         this.config = config != null ? config : createDefaultConfig();
-        this.validator = new DriverLimitValidator(
-                this.config.getDriverParameters(),
-                this.config.getEventManager()
-        );
     }
 
     public DriverMonitorDecorator(VisitableJob2dDriver driver, DriverUsageMonitor monitor) {
         this(driver, monitor, null);
-    }
-
-    public static DriverMonitorDecorator create(VisitableJob2dDriver driver, DriverUsageMonitor monitor) {
-        return new DriverMonitorDecorator(driver, monitor);
-    }
-
-
-    public static DriverMonitorDecorator createWithConfig(VisitableJob2dDriver driver, DriverUsageMonitor monitor, Consumer<DriverMonitoringConfig.Builder> configurer) {
-        DriverMonitoringConfig.Builder builder = new DriverMonitoringConfig.Builder();
-        configurer.accept(builder);
-        return new DriverMonitorDecorator(driver, monitor, builder.build());
     }
 
     private void notifyObserversIfEnabled() {
@@ -57,7 +41,7 @@ public class DriverMonitorDecorator extends AbstractDecorator {
     public void setPosition(int x, int y) {
         monitor.recordHeadMove(x, y);
 
-        if (!validator.validateHeadDistance(monitor)) {
+        if (!monitor.isMovementAllowed()) {
             return;
         }
 
@@ -69,7 +53,7 @@ public class DriverMonitorDecorator extends AbstractDecorator {
     public void operateTo(int x, int y) {
         monitor.recordOperationMove(x, y);
 
-        if (!validator.validateOperationDistance(monitor)) {
+        if (!monitor.isMovementAllowed()) {
             return;
         }
 

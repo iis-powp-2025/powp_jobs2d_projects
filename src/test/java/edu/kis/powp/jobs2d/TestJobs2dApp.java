@@ -127,6 +127,9 @@ public class TestJobs2dApp {
         DriverParameters driverParameters = new DriverParameters(2000, 2000);
         DriverEventManager eventManager = new DriverEventManager();
 
+        DriverLimitValidator validator = new DriverLimitValidator(driverParameters, eventManager);
+        usageMonitor.addObserver(validator);
+
         driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
         DriverMonitoringConfig config = new DriverMonitoringConfig.Builder()
                 .withDriverParameters(driverParameters)
@@ -145,6 +148,9 @@ public class TestJobs2dApp {
         DriverLoggingMonitor loggingMonitor2 = new DriverLoggingMonitor();
         DriverParameters driverParameters2 = new DriverParameters(5000, 3000);
         DriverEventManager eventManager2 = new DriverEventManager();
+
+        DriverLimitValidator validator2 = new DriverLimitValidator(driverParameters2, eventManager2);
+        usageMonitor2.addObserver(validator2);
 
         driver = new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special");
         DriverMonitoringConfig config2 = new DriverMonitoringConfig.Builder()

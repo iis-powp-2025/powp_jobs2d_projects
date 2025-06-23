@@ -1,6 +1,6 @@
 package edu.kis.powp.jobs2d.drivers.monitoring;
 
-public class DriverLimitValidator {
+public class DriverLimitValidator implements DriverUsageObserver{
     private final DriverParameters parameters;
     private final DriverEventManager eventManager;
 
@@ -16,8 +16,10 @@ public class DriverLimitValidator {
 
         if (monitor.getHeadDistance() > parameters.getMaxHeadDistance()) {
             eventManager.triggerEvent(DriverEventManager.DriverEventType.HEAD_DISTANCE_EXCEEDED);
-            return monitor.getHeadDistance() == 0;
+            monitor.setMovementAllowed(false);
+            return false;
         }
+        monitor.setMovementAllowed(true);
         return true;
     }
 
@@ -28,8 +30,16 @@ public class DriverLimitValidator {
 
         if (monitor.getOperationDistance() > parameters.getMaxOperationDistance()) {
             eventManager.triggerEvent(DriverEventManager.DriverEventType.OP_DISTANCE_EXCEEDED);
-            return monitor.getOperationDistance() == 0;
+            monitor.setMovementAllowed(false);
+            return false;
         }
+        monitor.setMovementAllowed(true);
         return true;
+    }
+
+    @Override
+    public void onUsageUpdated(DriverUsageMonitor monitor) {
+        validateHeadDistance(monitor);
+        validateOperationDistance(monitor);
     }
 }
