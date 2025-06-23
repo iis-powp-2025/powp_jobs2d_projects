@@ -23,6 +23,10 @@ public class WorkspaceFeature implements FeaturePlugin {
     private static WorkspaceManager workspaceManager;
     private static ClippingJobs2dDriverDecorator clipper;
 
+    @Override
+    public String[] getDependencies() {
+        return new String[]{"DriverFeature", "DrawerFeature"};
+    }
 
     /**
      * Initializes the workspace plugin by adding a "Workspaces" component menu to the application.
