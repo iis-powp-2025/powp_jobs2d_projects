@@ -5,83 +5,87 @@ import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
 import edu.kis.powp.jobs2d.drivers.monitoring.DriverEventManager.DriverEventType;
 import edu.kis.powp.observer.Publisher;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 public class DriverMonitorDecorator extends AbstractDecorator {
     private final DriverUsageMonitor monitor;
     private final Publisher movePublisher = new Publisher();
-    private static boolean monitorEnabled = true;
-    
-    private final DriverMonitor outputMonitor;
-    private final DriverParameters driverParameters;
-    private final DriverEventManager eventManager;
+    private final DriverMonitoringConfig config;
+    private final DriverLimitValidator validator;
 
+    private static boolean globalMonitorEnabled = true;
 
-    public DriverMonitorDecorator(
-            VisitableJob2dDriver driver,
-            DriverUsageMonitor monitor,
-            DriverMonitor outputMonitor,
-            DriverParameters driverParameters,
-            DriverEventManager eventManager
-    ) {
+    public DriverMonitorDecorator(VisitableJob2dDriver driver, DriverUsageMonitor monitor, DriverMonitoringConfig config) {
         super(driver);
-        this.monitor = monitor;
-        this.outputMonitor = outputMonitor;
-        this.driverParameters = driverParameters;
-        this.eventManager = eventManager;
+        this.monitor = Objects.requireNonNull(monitor, "Monitor cannot be null");
+        this.config = config != null ? config : createDefaultConfig();
+        this.validator = new DriverLimitValidator(
+                this.config.getDriverParameters(),
+                this.config.getEventManager()
+        );
     }
 
-    private void triggerEvent(DriverEventType eventType) {
-        eventManager.triggerEvent(eventType);
-  
     public DriverMonitorDecorator(VisitableJob2dDriver driver, DriverUsageMonitor monitor) {
-        super(driver);
-        this.monitor = monitor;
+        this(driver, monitor, null);
     }
-    public static boolean isMonitorEnabled() {
-        return monitorEnabled;
-    }
-      
-    private void triggerEvent(DriverEventType eventType) {
-        eventManager.triggerEvent(eventType);
 
+    public static DriverMonitorDecorator create(VisitableJob2dDriver driver, DriverUsageMonitor monitor) {
+        return new DriverMonitorDecorator(driver, monitor);
+    }
+
+
+    public static DriverMonitorDecorator createWithConfig(VisitableJob2dDriver driver, DriverUsageMonitor monitor, Consumer<DriverMonitoringConfig.Builder> configurer) {
+        DriverMonitoringConfig.Builder builder = new DriverMonitoringConfig.Builder();
+        configurer.accept(builder);
+        return new DriverMonitorDecorator(driver, monitor, builder.build());
+    }
+
+    private void notifyObserversIfEnabled() {
+        if (config.isMonitorEnabled()) {
+            movePublisher.notifyObservers();
+        }
+    }
+    private DriverMonitoringConfig createDefaultConfig() {
+        return new DriverMonitoringConfig.Builder()
+                .withMonitorEnabled(true)
+                .build();
+    }
     @Override
     public void setPosition(int x, int y) {
-
         monitor.recordHeadMove(x, y);
 
-        if (monitor.getHeadDistance() > driverParameters.getMaxHeadDistance()) {
-            triggerEvent(DriverEventType.HEAD_DISTANCE_EXCEEDED);
-            if (monitor.getHeadDistance() !=0 ){
-                return;
-            }
+        if (!validator.validateHeadDistance(monitor)) {
+            return;
         }
 
         driver.setPosition(x, y);
-
-        if(monitorEnabled) movePublisher.notifyObservers();
+        notifyObserversIfEnabled();
     }
 
     @Override
     public void operateTo(int x, int y) {
         monitor.recordOperationMove(x, y);
 
-        if (monitor.getOperationDistance() > driverParameters.getMaxOperationDistance()) {
-            triggerEvent(DriverEventType.OP_DISTANCE_EXCEEDED);
-            if (monitor.getOperationDistance() !=0 ){
-                return;
-            }
+        if (!validator.validateOperationDistance(monitor)) {
+            return;
         }
 
         driver.operateTo(x, y);
-
-        if(monitorEnabled) movePublisher.notifyObservers();
+        notifyObserversIfEnabled();
     }
+
     public Publisher getMovePublisher(){
         return movePublisher;
     }
-    public static void setMonitorEnabled(boolean enabled) {
-        monitorEnabled = enabled;
+
+    public static boolean isMonitorEnabled() {
+        return globalMonitorEnabled;
     }
 
-  
+    public static void setMonitorEnabled(boolean enabled) {
+        globalMonitorEnabled = enabled;
+    }
 }

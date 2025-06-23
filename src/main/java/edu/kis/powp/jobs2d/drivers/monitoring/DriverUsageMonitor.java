@@ -44,9 +44,10 @@ public class DriverUsageMonitor {
 
     public void setOperationDistnce(int opDistance) {
         opDistance = opDistance;
+    }
 
     public int[] getPosition(){
         return new int[]{currentX, currentY};
-
     }
+
 }

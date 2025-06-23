@@ -128,12 +128,38 @@ public class TestJobs2dApp {
         DriverEventManager eventManager = new DriverEventManager();
 
         driver = new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic");
-        driver = new DriverMonitorDecorator(driver, usageMonitor, loggingMonitor, driverParameters, eventManager);
+        DriverMonitoringConfig config = new DriverMonitoringConfig.Builder()
+                .withDriverParameters(driverParameters)
+                .withEventManager(eventManager)
+                .withOutputMonitor(loggingMonitor)
+                .build();
+
+        driver = new DriverMonitorDecorator(driver, usageMonitor, config);
+
         DriverFeature.addDriver("Monitored Driver", driver);
         SwingPopupPrompt prompt = new SwingPopupPrompt();
         EventPopupHandler eventHandler = new EventPopupHandler(usageMonitor, prompt);
         eventHandler.registerAll(eventManager);
 
+        DriverUsageMonitor usageMonitor2 = new DriverUsageMonitor();
+        DriverLoggingMonitor loggingMonitor2 = new DriverLoggingMonitor();
+        DriverParameters driverParameters2 = new DriverParameters(5000, 3000);
+        DriverEventManager eventManager2 = new DriverEventManager();
+
+        driver = new LineDriverAdapter(drawerController, LineFactory.getSpecialLine(), "special");
+        DriverMonitoringConfig config2 = new DriverMonitoringConfig.Builder()
+                .withDriverParameters(driverParameters2)
+                .withEventManager(eventManager2)
+                .withOutputMonitor(loggingMonitor2)
+                .build();
+
+        driver = new DriverMonitorDecorator(driver, usageMonitor2, config2);
+
+        DriverFeature.addDriver("Advanced Monitored Driver", driver);
+
+        SwingPopupPrompt prompt2 = new SwingPopupPrompt();
+        EventPopupHandler eventHandler2 = new EventPopupHandler(usageMonitor2, prompt2);
+        eventHandler2.registerAll(eventManager2);
 
         driver = new RealTimeDecoratorDriver(new LineDriverAdapter(drawerController, LineFactory.getBasicLine(), "basic"), application.getFreePanel(), 30, 10);
         DriverFeature.addDriver("Basic line Simulator with real time drawing", driver);
