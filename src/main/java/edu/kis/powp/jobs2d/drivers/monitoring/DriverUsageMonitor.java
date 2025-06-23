@@ -33,4 +33,8 @@ public class DriverUsageMonitor {
     public int getOperationDistance() {
         return opDistance;
     }
+
+    public int[] getPosition(){
+        return new int[]{currentX, currentY};
+    }
 }
