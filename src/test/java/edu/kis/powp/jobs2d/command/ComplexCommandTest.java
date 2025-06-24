@@ -173,31 +173,11 @@ class ComplexCommandTest {
     }
 
     static void testNestedComplexCopy() {
-        ComplexCommand command = new ComplexCommand.Builder()
-                .addCommand(new SetPositionCommand(0, 0))
-                .addCommand(new OperateToCommand(10, 10))
-                .addCommand(new OperateToCommand(20, 20))
-                .addCommand(new SetPositionCommand(0, 0))
-                .build();
-
-        ComplexCommand command2 = new ComplexCommand.Builder()
-                .addCommand(new SetPositionCommand(10, 10))
-                .addCommand(new OperateToCommand(50, 50))
-                .addCommand(new OperateToCommand(15, 15))
-                .build();
-
-        ComplexCommand commandToCopy = new ComplexCommand.Builder()
-                .addCommand(command)
-                .addCommand(new OperateToCommand(10, 10))
-                .addCommand(new OperateToCommand(20, 20))
-                .addCommand(new SetPositionCommand(0, 0))
-                .addCommand(command2)
-                .build();
-
-        ComplexCommand copy = (ComplexCommand) commandToCopy.copy();
+        ComplexCommand original = CommandTestFactory.createDeeplyNestedCommand();
+        ComplexCommand copy = (ComplexCommand) original.copy();
 
         try {
-            deepCompareCommands(commandToCopy, copy, 0); // Start at depth 0 for logging
+            deepCompareCommands(original, copy, 0); // Start at depth 0 for logging
             System.out.println("testNestedComplexCopy passed");
         } catch (AssertionError e) {
             System.out.println("testNestedComplexCopy failed: " + e.getMessage());
