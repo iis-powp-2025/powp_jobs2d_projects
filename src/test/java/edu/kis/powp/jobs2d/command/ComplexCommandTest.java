@@ -172,6 +172,85 @@ class ComplexCommandTest {
         System.out.println("testComplexCopy passed");
     }
 
+    static void testNestedComplexCopy() {
+        ComplexCommand command = new ComplexCommand.Builder()
+                .addCommand(new SetPositionCommand(0, 0))
+                .addCommand(new OperateToCommand(10, 10))
+                .addCommand(new OperateToCommand(20, 20))
+                .addCommand(new SetPositionCommand(0, 0))
+                .build();
+
+        ComplexCommand command2 = new ComplexCommand.Builder()
+                .addCommand(new SetPositionCommand(10, 10))
+                .addCommand(new OperateToCommand(50, 50))
+                .addCommand(new OperateToCommand(15, 15))
+                .build();
+
+        ComplexCommand commandToCopy = new ComplexCommand.Builder()
+                .addCommand(command)
+                .addCommand(new OperateToCommand(10, 10))
+                .addCommand(new OperateToCommand(20, 20))
+                .addCommand(new SetPositionCommand(0, 0))
+                .addCommand(command2)
+                .build();
+
+        ComplexCommand copy = (ComplexCommand) commandToCopy.copy();
+
+        try {
+            deepCompareCommands(commandToCopy, copy, 0); // Start at depth 0 for logging
+            System.out.println("testNestedComplexCopy passed");
+        } catch (AssertionError e) {
+            System.out.println("testNestedComplexCopy failed: " + e.getMessage());
+        }
+    }
+
+    private static void deepCompareCommands(DriverCommand original, DriverCommand copy, int depth) {
+        StringBuilder indentBuilder = new StringBuilder(); //indentation for better log readability
+        for (int i = 0; i < depth * 4; i++) {
+            indentBuilder.append(' ');
+        }
+        String indent = indentBuilder.toString();
+
+        System.out.printf("%s[Depth %d] Comparing: %s \tvs\t %s%n",
+                indent, depth, original, copy);
+
+        if (original == copy) {
+            throw new AssertionError(indent + "Commands are the same instance!");
+        }
+
+        if (original instanceof ICompoundCommand && copy instanceof ICompoundCommand) {
+            ICompoundCommand origComp = (ICompoundCommand) original;
+            ICompoundCommand copyComp = (ICompoundCommand) copy;
+
+            Iterator<DriverCommand> origIter = origComp.iterator();
+            Iterator<DriverCommand> copyIter = copyComp.iterator();
+            int index = 0;
+
+            while (origIter.hasNext() && copyIter.hasNext()) {
+                DriverCommand origChild = origIter.next();
+                DriverCommand copyChild = copyIter.next();
+                deepCompareCommands(origChild, copyChild, depth + 1);
+                index++;
+            }
+
+            if (origIter.hasNext() || copyIter.hasNext()) {
+                throw new AssertionError(indent + "Children count mismatch! Expected: "
+                        + (index + (origIter.hasNext() ? " + more" : ""))
+                        + " vs Actual: "
+                        + (index + (copyIter.hasNext() ? " + more" : "")));
+            }
+        } else if (!(original instanceof ICompoundCommand) && !(copy instanceof ICompoundCommand)) {
+            if (!original.equals(copy)) {
+                throw new AssertionError(indent + "Leaf commands differ! "
+                        + original + " != " + copy);
+            }
+        } else {
+            throw new AssertionError(indent + "Type mismatch! "
+                    + original.getClass().getSimpleName()
+                    + " vs " + copy.getClass().getSimpleName());
+        }
+    }
+
     static void testRemoveLastCommand() {
         ComplexCommand command = new ComplexCommand();
         command.addCommand(new SetPositionCommand(0, 0));
@@ -240,6 +319,7 @@ class ComplexCommandTest {
         testClear();
         testCopy();
         testComplexCopy();
+        testNestedComplexCopy();
         testBuilderAddCommand();
         testBuilderAddCommands();
         testEquals();
