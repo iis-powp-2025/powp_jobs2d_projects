@@ -16,9 +16,11 @@ import edu.kis.legacy.drawer.panel.DrawPanelController;
 import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.gui.WindowComponent;
 import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
-import edu.kis.powp.jobs2d.command.CommandLoader;
+import edu.kis.powp.jobs2d.command.mapper.CommandEntryMapper;
+import edu.kis.powp.jobs2d.command.CommandParser;
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.ICompoundCommand;
+import edu.kis.powp.jobs2d.command.entries.CommandEntry;
 import edu.kis.powp.jobs2d.command.manager.CommandHistoryManager;
 import edu.kis.powp.jobs2d.command.manager.ICommandManager;
 import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
@@ -33,6 +35,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
 
     private final ICommandManager commandManager;
     private VisitableJob2dDriver previewDriver;
+    private final CommandEntryMapper commandEntryMapper;
 
     private final VisitableJob2dDriver workspaceDriver;
 
@@ -55,7 +58,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
      */
     private static final long serialVersionUID = 9204679248304669948L;
 
-    public CommandManagerWindow(ICommandManager commandManager, CommandHistoryManager commandHistoryManager) {
+    public CommandManagerWindow(ICommandManager commandManager, CommandEntryMapper commandEntryMapper, CommandHistoryManager commandHistoryManager) {
         this.setTitle("Command Manager");
         this.setSize(600, 400);
         Container content = this.getContentPane();
@@ -63,6 +66,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
 
         this.commandManager = commandManager;
         this.commandHistoryManager = commandHistoryManager;
+        this.commandEntryMapper = commandEntryMapper;
 
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new GridBagLayout());
@@ -335,9 +339,17 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
     private void loadCommandsFromFile() {
         String fileName = fileNameField.getText();
 
-        commandManager.setCurrentCommand(
-                CommandLoader.loadCommandsFromJson(fileName),
-                fileName
-        );
+        try {
+            List<CommandEntry> commands = commandEntryMapper.mapToCommandEntries(fileName);
+
+            List<DriverCommand> driverCommands = CommandParser.parseEntryListToDriverCommand(commands);
+
+            commandManager.setCurrentCommand(
+                    driverCommands,
+                    fileName
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

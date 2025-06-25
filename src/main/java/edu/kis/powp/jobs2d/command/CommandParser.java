@@ -1,27 +1,21 @@
 package edu.kis.powp.jobs2d.command;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.kis.powp.jobs2d.command.entries.CommandEntry;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CommandLoader {
+public class CommandParser {
 
-
-    public static List<DriverCommand> loadCommandsFromJson(String filename) {
+    public static List<DriverCommand> parseEntryListToDriverCommand(List<CommandEntry> loadedEntries) {
         List<DriverCommand> loadedCommands = new ArrayList<>();
-        ObjectMapper mapper = new ObjectMapper();
-        File file = new File(filename);
+
         try {
-            List<JsonCommandEntry> commands = mapper.readValue(file, new TypeReference<List<JsonCommandEntry>>() {});
+            for (CommandEntry commandEntry : loadedEntries) {
 
-            for (JsonCommandEntry command : commands) {
-
-                String commandName = command.getCommandName();
-                int x = command.getX();
-                int y = command.getY();
+                String commandName = commandEntry.getCommandName();
+                int x = commandEntry.getX();
+                int y = commandEntry.getY();
 
                 DriverCommand newCommand;
 
