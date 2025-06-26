@@ -1,40 +1,31 @@
 package edu.kis.powp.jobs2d;
 
-import java.awt.EventQueue;
+import edu.kis.legacy.drawer.panel.DrawPanelController;
+import edu.kis.legacy.drawer.shape.LineFactory;
+import edu.kis.powp.appbase.Application;
+import edu.kis.powp.jobs2d.canva.factories.RectangleCanvaFactory;
+import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
+import edu.kis.powp.jobs2d.canva.shapes.CircularCanva;
+import edu.kis.powp.jobs2d.canva.shapes.RectangleCanva;
+import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
+import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
+import edu.kis.powp.jobs2d.command.manager.CommandHistoryManager;
+import edu.kis.powp.jobs2d.drivers.ComplexDriver;
+import edu.kis.powp.jobs2d.drivers.InformativeLoggerDriver;
+import edu.kis.powp.jobs2d.drivers.RealTimeDecoratorDriver;
+import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
+import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
+import edu.kis.powp.jobs2d.events.*;
+import edu.kis.powp.jobs2d.features.*;
+import edu.kis.powp.jobs2d.plugin.FeatureManager;
+import edu.kis.powp.jobs2d.transformations.*;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import edu.kis.legacy.drawer.panel.DrawPanelController;
-import edu.kis.legacy.drawer.shape.LineFactory;
-import edu.kis.powp.appbase.Application;
-import edu.kis.powp.jobs2d.canva.factories.RectangleCanvaFactory;
-import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
-import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
-import edu.kis.powp.jobs2d.command.manager.CommandHistoryManager;
-import edu.kis.powp.jobs2d.command.mapper.JsonCommandEntryMapper;
-import edu.kis.powp.jobs2d.drivers.ComplexDriver;
-import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
-import edu.kis.powp.jobs2d.canva.shapes.CircularCanva;
-import edu.kis.powp.jobs2d.canva.shapes.RectangleCanva;
-import edu.kis.powp.jobs2d.drivers.RealTimeDecoratorDriver;
-import edu.kis.powp.jobs2d.drivers.monitoring.DriverLoggingMonitor;
-import edu.kis.powp.jobs2d.drivers.monitoring.DriverMonitorDecorator;
-import edu.kis.powp.jobs2d.drivers.monitoring.DriverUsageMonitor;
-import edu.kis.powp.jobs2d.drivers.InformativeLoggerDriver;
-import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
-import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
-import edu.kis.powp.jobs2d.events.*;
-import edu.kis.powp.jobs2d.features.ClicksConverter;
-import edu.kis.powp.jobs2d.features.CommandsFeature;
-import edu.kis.powp.jobs2d.features.DrawerFeature;
-import edu.kis.powp.jobs2d.features.DriverFeature;
-import edu.kis.powp.jobs2d.features.DriverMonitorFeature;
-import edu.kis.powp.jobs2d.features.WorkspaceFeature;
-import edu.kis.powp.jobs2d.plugin.FeatureManager;
-import edu.kis.powp.jobs2d.transformations.*;
 
 
 public class TestJobs2dApp {
@@ -46,10 +37,8 @@ public class TestJobs2dApp {
      * @param application Application context.
      */
     private static void setupPresetTests(Application application) {
-        SelectTestFigureOptionListener selectTestFigureOptionListener = new SelectTestFigureOptionListener(
-                DriverFeature.getDriverManager());
-        SelectTestFigure2OptionListener selectTestFigure2OptionListener = new SelectTestFigure2OptionListener(
-                DriverFeature.getDriverManager());
+        SelectTestFigureOptionListener selectTestFigureOptionListener = new SelectTestFigureOptionListener(DriverFeature.getDriverManager());
+        SelectTestFigure2OptionListener selectTestFigure2OptionListener = new SelectTestFigure2OptionListener(DriverFeature.getDriverManager());
 
         application.addTest("Figure Joe 1", selectTestFigureOptionListener);
         application.addTest("Figure Joe 2", selectTestFigure2OptionListener);
@@ -76,7 +65,7 @@ public class TestJobs2dApp {
         application.addTest("Transform: Rotate 45", new TransformCurrentCommandOptionListener(new RotateTransformation(45)));
         application.addTest("Transform: Scale 2x", new TransformCurrentCommandOptionListener(new ScaleTransformation(2, 2)));
         application.addTest("Transform: Move by (50, 25)", new TransformCurrentCommandOptionListener(new TranslateTransformation(50, 25)));
-        application.addTest("Transform: Flip Horizontal", new TransformCurrentCommandOptionListener(new FlipTransformation(true,false)));
+        application.addTest("Transform: Flip Horizontal", new TransformCurrentCommandOptionListener(new FlipTransformation(true, false)));
         application.addTest("Transform: Flip Vertical", new TransformCurrentCommandOptionListener(new FlipTransformation(false, true)));
     }
 
@@ -144,13 +133,11 @@ public class TestJobs2dApp {
     private static void setupWindows(Application application) {
 
         CommandHistoryManager commandHistoryManager = new CommandHistoryManager(CommandsFeature.getDriverCommandManager());
-        JsonCommandEntryMapper jsonCommandEntryMapper = new JsonCommandEntryMapper();
 
-        CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager(), jsonCommandEntryMapper, commandHistoryManager);
+        CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager(), commandHistoryManager);
         application.addWindowComponent("Command Manager", commandManager);
 
-        CommandManagerWindowCommandChangeObserver windowObserver = new CommandManagerWindowCommandChangeObserver(
-                commandManager);
+        CommandManagerWindowCommandChangeObserver windowObserver = new CommandManagerWindowCommandChangeObserver(commandManager);
 
         CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(windowObserver);
         CommandsFeature.getDriverCommandManager().getChangePublisher().addSubscriber(commandHistoryManager);
@@ -164,14 +151,11 @@ public class TestJobs2dApp {
     private static void setupLogger(Application application) {
 
         application.addComponentMenu(Logger.class, "Logger", 0);
-        application.addComponentMenuElement(Logger.class, "Clear log",
-                (ActionEvent e) -> application.flushLoggerOutput());
+        application.addComponentMenuElement(Logger.class, "Clear log", (ActionEvent e) -> application.flushLoggerOutput());
         application.addComponentMenuElement(Logger.class, "Fine level", (ActionEvent e) -> logger.setLevel(Level.FINE));
         application.addComponentMenuElement(Logger.class, "Info level", (ActionEvent e) -> logger.setLevel(Level.INFO));
-        application.addComponentMenuElement(Logger.class, "Warning level",
-                (ActionEvent e) -> logger.setLevel(Level.WARNING));
-        application.addComponentMenuElement(Logger.class, "Severe level",
-                (ActionEvent e) -> logger.setLevel(Level.SEVERE));
+        application.addComponentMenuElement(Logger.class, "Warning level", (ActionEvent e) -> logger.setLevel(Level.WARNING));
+        application.addComponentMenuElement(Logger.class, "Severe level", (ActionEvent e) -> logger.setLevel(Level.SEVERE));
         application.addComponentMenuElement(Logger.class, "OFF logging", (ActionEvent e) -> logger.setLevel(Level.OFF));
     }
 

@@ -1,7 +1,6 @@
 package edu.kis.powp.jobs2d.command;
 
 import edu.kis.powp.jobs2d.command.entries.CommandEntry;
-import edu.kis.powp.jobs2d.command.mapper.JsonCommandEntryMapper;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -206,8 +205,14 @@ class ComplexCommandTest {
         builder1.addCommand(new OperateToCommand(0, 0));
         ComplexCommand command1 = builder1.build();
 
-        JsonCommandEntryMapper mapper = new JsonCommandEntryMapper();
-        List<CommandEntry> commandEntries = mapper.mapToCommandEntries("src/test/java/edu/kis/powp/jobs2d/command/fileWithTestCommands.json");
+        String commandsJsonText = "[\n" +
+                "  {\"commandName\": \"setPosition\", \"x\": 100, \"y\": 0},\n" +
+                "  {\"commandName\": \"operateTo\", \"x\": 100, \"y\": 100},\n" +
+                "  {\"commandName\": \"operateTo\", \"x\": 0, \"y\": 100},\n" +
+                "  {\"commandName\": \"operateTo\", \"x\": 0, \"y\": 0}\n" +
+                "]";
+
+        List<CommandEntry> commandEntries = ManualJsonParser.parseCommands(commandsJsonText);
 
         List<DriverCommand> driverCommandList = CommandParser.parseEntryListToDriverCommand(commandEntries);
 

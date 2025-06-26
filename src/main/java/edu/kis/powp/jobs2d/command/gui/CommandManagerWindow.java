@@ -16,7 +16,7 @@ import edu.kis.legacy.drawer.panel.DrawPanelController;
 import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.gui.WindowComponent;
 import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
-import edu.kis.powp.jobs2d.command.mapper.CommandEntryMapper;
+import edu.kis.powp.jobs2d.command.ManualJsonParser;
 import edu.kis.powp.jobs2d.command.CommandParser;
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.ICompoundCommand;
@@ -35,7 +35,6 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
 
     private final ICommandManager commandManager;
     private VisitableJob2dDriver previewDriver;
-    private final CommandEntryMapper commandEntryMapper;
 
     private final VisitableJob2dDriver workspaceDriver;
 
@@ -43,7 +42,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
 
     private final JTextArea observerListField;
 
-    private final JTextField fileNameField;
+    private final JTextField commandsInputTextField;
     private final List<Subscriber> deletedSubscriberList = new ArrayList<>();
 
     private final DrawPanelController drawPanelController;
@@ -58,7 +57,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
      */
     private static final long serialVersionUID = 9204679248304669948L;
 
-    public CommandManagerWindow(ICommandManager commandManager, CommandEntryMapper commandEntryMapper, CommandHistoryManager commandHistoryManager) {
+    public CommandManagerWindow(ICommandManager commandManager, CommandHistoryManager commandHistoryManager) {
         this.setTitle("Command Manager");
         this.setSize(600, 400);
         Container content = this.getContentPane();
@@ -66,7 +65,6 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
 
         this.commandManager = commandManager;
         this.commandHistoryManager = commandHistoryManager;
-        this.commandEntryMapper = commandEntryMapper;
 
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new GridBagLayout());
@@ -159,18 +157,18 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         buttonConstraints.gridy = 6;
         buttonPanel.add(btnEditCommand, buttonConstraints);
 
-        JLabel fileNameLabel = new JLabel("File Name:");
+        JLabel commandsInputTextLabel = new JLabel("Commands Input:");
         buttonConstraints.gridy = 7;
-        buttonPanel.add(fileNameLabel, buttonConstraints);
+        buttonPanel.add(commandsInputTextLabel, buttonConstraints);
 
-        fileNameField = new JTextField("");
+        commandsInputTextField = new JTextField("");
         buttonConstraints.gridy = 8;
-        buttonPanel.add(fileNameField, buttonConstraints);
+        buttonPanel.add(commandsInputTextField, buttonConstraints);
 
-        JButton btnLoadCommands = new JButton("Load Commands From File");
-        btnLoadCommands.addActionListener((ActionEvent e) -> this.loadCommandsFromFile());
+        JButton loadCommandsFromInputText = new JButton("Load Commands From Input");
+        loadCommandsFromInputText.addActionListener((ActionEvent e) -> this.loadCommandsFromInput());
         buttonConstraints.gridy = 9;
-        buttonPanel.add(btnLoadCommands, buttonConstraints);
+        buttonPanel.add(loadCommandsFromInputText, buttonConstraints);
 
         leftConstraints.gridy = 4;
         leftConstraints.weighty = 0.4;
@@ -336,17 +334,16 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         editorUI.setVisible(true);
     }
 
-    private void loadCommandsFromFile() {
-        String fileName = fileNameField.getText();
+    private void loadCommandsFromInput() {
+        String commandsText = commandsInputTextField.getText();
 
         try {
-            List<CommandEntry> commands = commandEntryMapper.mapToCommandEntries(fileName);
-
+            List<CommandEntry> commands = ManualJsonParser.parseCommands(commandsText);
             List<DriverCommand> driverCommands = CommandParser.parseEntryListToDriverCommand(commands);
 
             commandManager.setCurrentCommand(
                     driverCommands,
-                    fileName
+                    commandsText
             );
         } catch (Exception e) {
             e.printStackTrace();
