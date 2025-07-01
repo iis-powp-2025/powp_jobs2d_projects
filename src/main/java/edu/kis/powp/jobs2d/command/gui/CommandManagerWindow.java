@@ -16,6 +16,7 @@ import edu.kis.legacy.drawer.panel.DrawPanelController;
 import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.gui.WindowComponent;
 import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
+import edu.kis.powp.jobs2d.command.CommandParsingContext;
 import edu.kis.powp.jobs2d.command.parser.ManualJsonParser;
 import edu.kis.powp.jobs2d.command.CommandParser;
 import edu.kis.powp.jobs2d.command.DriverCommand;
@@ -53,20 +54,20 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
     private final DefaultListModel<CommandHistoryManager.HistoryEntry> historyListModel;
     private boolean isCanvasDisplayed = false;
 
-    private ManualParser manualParser;
+    private final CommandParsingContext parsingContext;
 
     /**
      * 
      */
     private static final long serialVersionUID = 9204679248304669948L;
 
-    public CommandManagerWindow(ICommandManager commandManager, CommandHistoryManager commandHistoryManager, ManualParser manualParser) {
+    public CommandManagerWindow(ICommandManager commandManager, CommandHistoryManager commandHistoryManager, CommandParsingContext parsingContext) {
         this.setTitle("Command Manager");
         this.setSize(600, 400);
         Container content = this.getContentPane();
         content.setLayout(new GridBagLayout());
 
-        this.manualParser = manualParser;
+        this.parsingContext = parsingContext;
         this.commandManager = commandManager;
         this.commandHistoryManager = commandHistoryManager;
 
@@ -342,7 +343,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         String commandsText = commandsInputTextField.getText();
 
         try {
-            List<CommandEntry> commands = manualParser.parseCommands(commandsText);
+            List<CommandEntry> commands = parsingContext.parseCommands(commandsText);
             List<DriverCommand> driverCommands = CommandParser.parseEntryListToDriverCommand(commands);
 
             commandManager.setCurrentCommand(
@@ -354,7 +355,4 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         }
     }
 
-    public void setManualParser(ManualParser newManualParser) {
-        this.manualParser = newManualParser;
-    }
 }

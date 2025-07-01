@@ -214,9 +214,9 @@ class ComplexCommandTest {
                 "  {\"commandName\": \"operateTo\", \"x\": 0, \"y\": 0}\n" +
                 "]";
 
-        ManualParser manualParser = new ManualJsonParser();
+        CommandParsingContext context = new CommandParsingContext();
 
-        List<CommandEntry> commandEntries = manualParser.parseCommands(commandsJsonText);
+        List<CommandEntry> commandEntries = context.parseCommands(commandsJsonText);
 
         List<DriverCommand> driverCommandList = CommandParser.parseEntryListToDriverCommand(commandEntries);
 

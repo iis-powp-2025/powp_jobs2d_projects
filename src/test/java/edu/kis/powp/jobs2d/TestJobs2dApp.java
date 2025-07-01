@@ -7,6 +7,7 @@ import edu.kis.powp.jobs2d.canva.factories.RectangleCanvaFactory;
 import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
 import edu.kis.powp.jobs2d.canva.shapes.CircularCanva;
 import edu.kis.powp.jobs2d.canva.shapes.RectangleCanva;
+import edu.kis.powp.jobs2d.command.CommandParsingContext;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
 import edu.kis.powp.jobs2d.command.manager.CommandHistoryManager;
@@ -135,9 +136,9 @@ public class TestJobs2dApp {
     private static void setupWindows(Application application) {
 
         CommandHistoryManager commandHistoryManager = new CommandHistoryManager(CommandsFeature.getDriverCommandManager());
-        ManualParser manualParser = new ManualJsonParser();
+        CommandParsingContext commandParsingContext = new CommandParsingContext();
 
-        CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager(), commandHistoryManager, manualParser);
+        CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager(), commandHistoryManager, commandParsingContext);
         application.addWindowComponent("Command Manager", commandManager);
 
         CommandManagerWindowCommandChangeObserver windowObserver = new CommandManagerWindowCommandChangeObserver(commandManager);
