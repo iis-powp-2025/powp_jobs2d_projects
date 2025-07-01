@@ -11,8 +11,6 @@ import edu.kis.powp.jobs2d.command.CommandParsingContext;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
 import edu.kis.powp.jobs2d.command.manager.CommandHistoryManager;
-import edu.kis.powp.jobs2d.command.parser.ManualJsonParser;
-import edu.kis.powp.jobs2d.command.parser.ManualParser;
 import edu.kis.powp.jobs2d.drivers.ComplexDriver;
 import edu.kis.powp.jobs2d.drivers.InformativeLoggerDriver;
 import edu.kis.powp.jobs2d.drivers.RealTimeDecoratorDriver;

@@ -1,8 +1,6 @@
 package edu.kis.powp.jobs2d.command;
 
 import edu.kis.powp.jobs2d.command.entries.CommandEntry;
-import edu.kis.powp.jobs2d.command.parser.ManualJsonParser;
-import edu.kis.powp.jobs2d.command.parser.ManualParser;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -232,6 +230,39 @@ class ComplexCommandTest {
         }
     }
 
+    static void testCsvCommandImport() {
+        ComplexCommand.Builder builder1 = new ComplexCommand.Builder();
+        builder1.addCommand(new SetPositionCommand(100, 0));
+        builder1.addCommand(new OperateToCommand(100, 100));
+        builder1.addCommand(new OperateToCommand(0, 100));
+        builder1.addCommand(new OperateToCommand(0, 0));
+        ComplexCommand command1 = builder1.build();
+
+
+        String commandsCsvText = "commandName,x,y\n" +
+                        "setPosition,100,0\n" +
+                        "operateTo,100,100\n" +
+                        "operateTo,0,100\n" +
+                        "operateTo,0,0";
+
+        CommandParsingContext context = new CommandParsingContext();
+
+        List<CommandEntry> commandEntries = context.parseCommands(commandsCsvText);
+
+        List<DriverCommand> driverCommandList = CommandParser.parseEntryListToDriverCommand(commandEntries);
+
+        ComplexCommand.Builder builder2 = new ComplexCommand.Builder();
+        builder2.addCommands(driverCommandList);
+
+        ComplexCommand command2 = builder2.build();
+
+        if (!command1.equals(command2)) {
+            System.out.println("testCsvCommandImport failed");
+        } else {
+            System.out.println("testCsvCommandImport passed");
+        }
+    }
+
 
     public static void main(String[] args) {
         testIterator();
@@ -247,5 +278,6 @@ class ComplexCommandTest {
         testBuilderAddCommands();
         testEquals();
         testJsonCommandImport();
+        testCsvCommandImport();
     }
 }

@@ -1,9 +1,6 @@
 package edu.kis.powp.jobs2d.command.gui;
 
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -17,14 +14,13 @@ import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.gui.WindowComponent;
 import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
 import edu.kis.powp.jobs2d.command.CommandParsingContext;
-import edu.kis.powp.jobs2d.command.parser.ManualJsonParser;
 import edu.kis.powp.jobs2d.command.CommandParser;
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.ICompoundCommand;
 import edu.kis.powp.jobs2d.command.entries.CommandEntry;
 import edu.kis.powp.jobs2d.command.manager.CommandHistoryManager;
 import edu.kis.powp.jobs2d.command.manager.ICommandManager;
-import edu.kis.powp.jobs2d.command.parser.ManualParser;
+import edu.kis.powp.jobs2d.command.strategy.ParsingStrategy;
 import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.features.WorkspaceFeature;
@@ -44,7 +40,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
 
     private final JTextArea observerListField;
 
-    private final JTextField commandsInputTextField;
+    private final JTextArea commandsInputTextField;
     private final List<Subscriber> deletedSubscriberList = new ArrayList<>();
 
     private final DrawPanelController drawPanelController;
@@ -55,6 +51,9 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
     private boolean isCanvasDisplayed = false;
 
     private final CommandParsingContext parsingContext;
+
+    private final JComboBox<ParsingStrategy> strategyComboBox;
+    private final JLabel currentStrategyLabel;
 
     /**
      * 
@@ -162,17 +161,51 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         buttonConstraints.gridy = 6;
         buttonPanel.add(btnEditCommand, buttonConstraints);
 
-        JLabel commandsInputTextLabel = new JLabel("Commands Input:");
+        JLabel strategyLabel = new JLabel("Parsing Strategy:");
         buttonConstraints.gridy = 7;
+        buttonPanel.add(strategyLabel, buttonConstraints);
+
+        strategyComboBox = new JComboBox<>();
+        strategyComboBox.addItem(null); // Auto-detect option
+        for (ParsingStrategy strategy : parsingContext.getAvailableStrategies()) {
+            strategyComboBox.addItem(strategy);
+        }
+        strategyComboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value,
+                                                          int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value == null) {
+                    setText("Auto-detect");
+                } else {
+                    setText(((ParsingStrategy) value).getFormatName());
+                }
+                return this;
+            }
+        });
+        strategyComboBox.addActionListener(e -> {
+            ParsingStrategy selected = (ParsingStrategy) strategyComboBox.getSelectedItem();
+            parsingContext.setStrategy(selected);
+            updateCurrentStrategyLabel();
+        });
+        buttonConstraints.gridy = 8;
+        buttonPanel.add(strategyComboBox, buttonConstraints);
+
+        currentStrategyLabel = new JLabel("Current: Auto-detect");
+        buttonConstraints.gridy = 9;
+        buttonPanel.add(currentStrategyLabel, buttonConstraints);
+
+        JLabel commandsInputTextLabel = new JLabel("Commands Input:");
+        buttonConstraints.gridy = 10;
         buttonPanel.add(commandsInputTextLabel, buttonConstraints);
 
-        commandsInputTextField = new JTextField("");
-        buttonConstraints.gridy = 8;
+        commandsInputTextField = new JTextArea("");
+        buttonConstraints.gridy = 11;
         buttonPanel.add(commandsInputTextField, buttonConstraints);
 
         JButton loadCommandsFromInputText = new JButton("Load Commands From Input");
         loadCommandsFromInputText.addActionListener((ActionEvent e) -> this.loadCommandsFromInput());
-        buttonConstraints.gridy = 9;
+        buttonConstraints.gridy = 12;
         buttonPanel.add(loadCommandsFromInputText, buttonConstraints);
 
         leftConstraints.gridy = 4;
@@ -353,6 +386,15 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void updateCurrentStrategyLabel() {
+        currentStrategyLabel.setText("Current: " + parsingContext.getCurrentStrategyName());
+    }
+
+    public void addParsingStrategy(ParsingStrategy strategy) {
+        parsingContext.registerStrategy(strategy);
+        strategyComboBox.addItem(strategy);
     }
 
 }

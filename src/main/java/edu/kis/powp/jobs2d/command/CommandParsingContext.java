@@ -2,6 +2,7 @@ package edu.kis.powp.jobs2d.command;
 
 
 import edu.kis.powp.jobs2d.command.entries.CommandEntry;
+import edu.kis.powp.jobs2d.command.strategy.CsvParsingStrategy;
 import edu.kis.powp.jobs2d.command.strategy.JsonParsingStrategy;
 import edu.kis.powp.jobs2d.command.strategy.ParsingStrategy;
 
@@ -9,13 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommandParsingContext {
-    private List<ParsingStrategy> availableStrategies;
+    private final List<ParsingStrategy> availableStrategies;
     private ParsingStrategy currentStrategy;
 
     public CommandParsingContext() {
         this.availableStrategies = new ArrayList<>();
         // Register default strategies
         registerStrategy(new JsonParsingStrategy());
+        registerStrategy(new CsvParsingStrategy());
     }
 
     public void registerStrategy(ParsingStrategy strategy) {
@@ -43,8 +45,11 @@ public class CommandParsingContext {
         ParsingStrategy detectedStrategy = detectBestStrategy(input);
         if (detectedStrategy != null) {
             setStrategy(detectedStrategy);
-            return detectedStrategy.parseCommands(input);
+            List<CommandEntry> commandEntryList = detectedStrategy.parseCommands(input);
+            currentStrategy = null;
+            return commandEntryList;
         }
+
 
         throw new IllegalArgumentException("No suitable parsing strategy found for input format");
     }
