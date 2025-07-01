@@ -16,13 +16,14 @@ import edu.kis.legacy.drawer.panel.DrawPanelController;
 import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.gui.WindowComponent;
 import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
-import edu.kis.powp.jobs2d.command.ManualJsonParser;
+import edu.kis.powp.jobs2d.command.parser.ManualJsonParser;
 import edu.kis.powp.jobs2d.command.CommandParser;
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.ICompoundCommand;
 import edu.kis.powp.jobs2d.command.entries.CommandEntry;
 import edu.kis.powp.jobs2d.command.manager.CommandHistoryManager;
 import edu.kis.powp.jobs2d.command.manager.ICommandManager;
+import edu.kis.powp.jobs2d.command.parser.ManualParser;
 import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.features.WorkspaceFeature;
@@ -52,17 +53,20 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
     private final DefaultListModel<CommandHistoryManager.HistoryEntry> historyListModel;
     private boolean isCanvasDisplayed = false;
 
+    private ManualParser manualParser;
+
     /**
      * 
      */
     private static final long serialVersionUID = 9204679248304669948L;
 
-    public CommandManagerWindow(ICommandManager commandManager, CommandHistoryManager commandHistoryManager) {
+    public CommandManagerWindow(ICommandManager commandManager, CommandHistoryManager commandHistoryManager, ManualParser manualParser) {
         this.setTitle("Command Manager");
         this.setSize(600, 400);
         Container content = this.getContentPane();
         content.setLayout(new GridBagLayout());
 
+        this.manualParser = manualParser;
         this.commandManager = commandManager;
         this.commandHistoryManager = commandHistoryManager;
 
@@ -338,7 +342,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         String commandsText = commandsInputTextField.getText();
 
         try {
-            List<CommandEntry> commands = ManualJsonParser.parseCommands(commandsText);
+            List<CommandEntry> commands = manualParser.parseCommands(commandsText);
             List<DriverCommand> driverCommands = CommandParser.parseEntryListToDriverCommand(commands);
 
             commandManager.setCurrentCommand(
@@ -348,5 +352,9 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void setManualParser(ManualParser newManualParser) {
+        this.manualParser = newManualParser;
     }
 }

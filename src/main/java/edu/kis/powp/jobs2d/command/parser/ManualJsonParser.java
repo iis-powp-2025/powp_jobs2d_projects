@@ -1,12 +1,14 @@
-package edu.kis.powp.jobs2d.command;
+package edu.kis.powp.jobs2d.command.parser;
 
 import edu.kis.powp.jobs2d.command.entries.CommandEntry;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ManualJsonParser {
-    public static List<CommandEntry> parseCommands(String json) {
+public class ManualJsonParser implements ManualParser {
+
+    @Override
+    public List<CommandEntry> parseCommands(String json) {
         List<CommandEntry> commandList = new ArrayList<>();
 
         String cleaned = json.replace("[", "")
@@ -27,7 +29,8 @@ public class ManualJsonParser {
         return commandList;
     }
 
-    private static CommandEntry getCommandEntry(String[] fields) {
+    @Override
+    public CommandEntry getCommandEntry(String[] fields) {
         CommandEntry cmd = new CommandEntry();
 
         for (String field : fields) {
@@ -50,4 +53,5 @@ public class ManualJsonParser {
         }
         return cmd;
     }
+
 }
