@@ -1,23 +1,22 @@
-package edu.kis.powp.jobs2d.command;
+package edu.kis.powp.jobs2d.command.manager;
 
 
 import edu.kis.powp.jobs2d.command.entries.CommandEntry;
-import edu.kis.powp.jobs2d.command.strategy.CsvParsingStrategy;
-import edu.kis.powp.jobs2d.command.strategy.JsonParsingStrategy;
 import edu.kis.powp.jobs2d.command.strategy.ParsingStrategy;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CommandParsingContext {
+public class CommandParsingStrategiesManager {
     private final List<ParsingStrategy> availableStrategies;
     private ParsingStrategy currentStrategy;
 
-    public CommandParsingContext() {
+    public CommandParsingStrategiesManager() {
         this.availableStrategies = new ArrayList<>();
-        // Register default strategies
-        registerStrategy(new JsonParsingStrategy());
-        registerStrategy(new CsvParsingStrategy());
+    }
+
+    public CommandParsingStrategiesManager(List<ParsingStrategy> availableStrategies) {
+        this.availableStrategies = availableStrategies;
     }
 
     public void registerStrategy(ParsingStrategy strategy) {

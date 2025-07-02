@@ -13,7 +13,7 @@ import edu.kis.legacy.drawer.panel.DrawPanelController;
 import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.gui.WindowComponent;
 import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
-import edu.kis.powp.jobs2d.command.CommandParsingContext;
+import edu.kis.powp.jobs2d.command.manager.CommandParsingStrategiesManager;
 import edu.kis.powp.jobs2d.command.CommandParser;
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.ICompoundCommand;
@@ -50,7 +50,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
     private final DefaultListModel<CommandHistoryManager.HistoryEntry> historyListModel;
     private boolean isCanvasDisplayed = false;
 
-    private final CommandParsingContext parsingContext;
+    private final CommandParsingStrategiesManager parsingContext;
 
     private final JComboBox<ParsingStrategy> strategyComboBox;
     private final JLabel currentStrategyLabel;
@@ -60,7 +60,7 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
      */
     private static final long serialVersionUID = 9204679248304669948L;
 
-    public CommandManagerWindow(ICommandManager commandManager, CommandHistoryManager commandHistoryManager, CommandParsingContext parsingContext) {
+    public CommandManagerWindow(ICommandManager commandManager, CommandHistoryManager commandHistoryManager, CommandParsingStrategiesManager parsingContext) {
         this.setTitle("Command Manager");
         this.setSize(600, 400);
         Container content = this.getContentPane();

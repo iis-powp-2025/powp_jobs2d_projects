@@ -1,6 +1,7 @@
 package edu.kis.powp.jobs2d.command;
 
 import edu.kis.powp.jobs2d.command.entries.CommandEntry;
+import edu.kis.powp.jobs2d.command.manager.CommandParsingStrategiesManager;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -212,7 +213,7 @@ class ComplexCommandTest {
                 "  {\"commandName\": \"operateTo\", \"x\": 0, \"y\": 0}\n" +
                 "]";
 
-        CommandParsingContext context = new CommandParsingContext();
+        CommandParsingStrategiesManager context = new CommandParsingStrategiesManager();
 
         List<CommandEntry> commandEntries = context.parseCommands(commandsJsonText);
 
@@ -245,7 +246,7 @@ class ComplexCommandTest {
                         "operateTo,0,100\n" +
                         "operateTo,0,0";
 
-        CommandParsingContext context = new CommandParsingContext();
+        CommandParsingStrategiesManager context = new CommandParsingStrategiesManager();
 
         List<CommandEntry> commandEntries = context.parseCommands(commandsCsvText);
 

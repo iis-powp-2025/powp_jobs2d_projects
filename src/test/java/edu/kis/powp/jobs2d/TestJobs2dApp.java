@@ -7,10 +7,13 @@ import edu.kis.powp.jobs2d.canva.factories.RectangleCanvaFactory;
 import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
 import edu.kis.powp.jobs2d.canva.shapes.CircularCanva;
 import edu.kis.powp.jobs2d.canva.shapes.RectangleCanva;
-import edu.kis.powp.jobs2d.command.CommandParsingContext;
+import edu.kis.powp.jobs2d.command.manager.CommandParsingStrategiesManager;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindow;
 import edu.kis.powp.jobs2d.command.gui.CommandManagerWindowCommandChangeObserver;
 import edu.kis.powp.jobs2d.command.manager.CommandHistoryManager;
+import edu.kis.powp.jobs2d.command.strategy.CsvParsingStrategy;
+import edu.kis.powp.jobs2d.command.strategy.JsonParsingStrategy;
+import edu.kis.powp.jobs2d.command.strategy.ParsingStrategy;
 import edu.kis.powp.jobs2d.drivers.ComplexDriver;
 import edu.kis.powp.jobs2d.drivers.InformativeLoggerDriver;
 import edu.kis.powp.jobs2d.drivers.RealTimeDecoratorDriver;
@@ -23,6 +26,8 @@ import edu.kis.powp.jobs2d.transformations.*;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -134,9 +139,13 @@ public class TestJobs2dApp {
     private static void setupWindows(Application application) {
 
         CommandHistoryManager commandHistoryManager = new CommandHistoryManager(CommandsFeature.getDriverCommandManager());
-        CommandParsingContext commandParsingContext = new CommandParsingContext();
 
-        CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager(), commandHistoryManager, commandParsingContext);
+        List<ParsingStrategy> parsingStrategies = new ArrayList<>();
+        parsingStrategies.add(new JsonParsingStrategy());
+        parsingStrategies.add(new CsvParsingStrategy());
+        CommandParsingStrategiesManager commandParsingStrategiesManager = new CommandParsingStrategiesManager(parsingStrategies);
+
+        CommandManagerWindow commandManager = new CommandManagerWindow(CommandsFeature.getDriverCommandManager(), commandHistoryManager, commandParsingStrategiesManager);
         application.addWindowComponent("Command Manager", commandManager);
 
         CommandManagerWindowCommandChangeObserver windowObserver = new CommandManagerWindowCommandChangeObserver(commandManager);
