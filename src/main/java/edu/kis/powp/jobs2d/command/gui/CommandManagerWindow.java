@@ -1,34 +1,26 @@
 package edu.kis.powp.jobs2d.command.gui;
 
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 
 import edu.kis.legacy.drawer.panel.DrawPanelController;
 import edu.kis.legacy.drawer.shape.LineFactory;
 import edu.kis.powp.appbase.gui.WindowComponent;
 import edu.kis.powp.jobs2d.canva.shapes.CanvaShape;
+import edu.kis.powp.jobs2d.command.manager.CommandParsingStrategiesManager;
+import edu.kis.powp.jobs2d.command.CommandParser;
 import edu.kis.powp.jobs2d.command.DriverCommand;
 import edu.kis.powp.jobs2d.command.ICompoundCommand;
+import edu.kis.powp.jobs2d.command.entries.CommandEntry;
 import edu.kis.powp.jobs2d.command.manager.CommandHistoryManager;
 import edu.kis.powp.jobs2d.command.manager.ICommandManager;
+import edu.kis.powp.jobs2d.command.strategy.ParsingStrategy;
 import edu.kis.powp.jobs2d.drivers.VisitableJob2dDriver;
 import edu.kis.powp.jobs2d.drivers.adapter.LineDriverAdapter;
 import edu.kis.powp.jobs2d.features.WorkspaceFeature;
@@ -47,6 +39,8 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
     private final JTextArea currentCommandField;
 
     private final JTextArea observerListField;
+
+    private final JTextArea commandsInputTextField;
     private final List<Subscriber> deletedSubscriberList = new ArrayList<>();
 
     private final DrawPanelController drawPanelController;
@@ -56,17 +50,23 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
     private final DefaultListModel<CommandHistoryManager.HistoryEntry> historyListModel;
     private boolean isCanvasDisplayed = false;
 
+    private final CommandParsingStrategiesManager parsingContext;
+
+    private final JComboBox<ParsingStrategy> strategyComboBox;
+    private final JLabel currentStrategyLabel;
+
     /**
      * 
      */
     private static final long serialVersionUID = 9204679248304669948L;
 
-    public CommandManagerWindow(ICommandManager commandManager, CommandHistoryManager commandHistoryManager) {
+    public CommandManagerWindow(ICommandManager commandManager, CommandHistoryManager commandHistoryManager, CommandParsingStrategiesManager parsingContext) {
         this.setTitle("Command Manager");
         this.setSize(600, 400);
         Container content = this.getContentPane();
         content.setLayout(new GridBagLayout());
 
+        this.parsingContext = parsingContext;
         this.commandManager = commandManager;
         this.commandHistoryManager = commandHistoryManager;
 
@@ -160,6 +160,53 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         btnEditCommand.addActionListener((ActionEvent e) -> this.editCurrentCommand());
         buttonConstraints.gridy = 6;
         buttonPanel.add(btnEditCommand, buttonConstraints);
+
+        JLabel strategyLabel = new JLabel("Parsing Strategy:");
+        buttonConstraints.gridy = 7;
+        buttonPanel.add(strategyLabel, buttonConstraints);
+
+        strategyComboBox = new JComboBox<>();
+        strategyComboBox.addItem(null); // Auto-detect option
+        for (ParsingStrategy strategy : parsingContext.getAvailableStrategies()) {
+            strategyComboBox.addItem(strategy);
+        }
+        strategyComboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value,
+                                                          int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value == null) {
+                    setText("Auto-detect");
+                } else {
+                    setText(((ParsingStrategy) value).getFormatName());
+                }
+                return this;
+            }
+        });
+        strategyComboBox.addActionListener(e -> {
+            ParsingStrategy selected = (ParsingStrategy) strategyComboBox.getSelectedItem();
+            parsingContext.setStrategy(selected);
+            updateCurrentStrategyLabel();
+        });
+        buttonConstraints.gridy = 8;
+        buttonPanel.add(strategyComboBox, buttonConstraints);
+
+        currentStrategyLabel = new JLabel("Current: Auto-detect");
+        buttonConstraints.gridy = 9;
+        buttonPanel.add(currentStrategyLabel, buttonConstraints);
+
+        JLabel commandsInputTextLabel = new JLabel("Commands Input:");
+        buttonConstraints.gridy = 10;
+        buttonPanel.add(commandsInputTextLabel, buttonConstraints);
+
+        commandsInputTextField = new JTextArea("");
+        buttonConstraints.gridy = 11;
+        buttonPanel.add(commandsInputTextField, buttonConstraints);
+
+        JButton loadCommandsFromInputText = new JButton("Load Commands From Input");
+        loadCommandsFromInputText.addActionListener((ActionEvent e) -> this.loadCommandsFromInput());
+        buttonConstraints.gridy = 12;
+        buttonPanel.add(loadCommandsFromInputText, buttonConstraints);
 
         leftConstraints.gridy = 4;
         leftConstraints.weighty = 0.4;
@@ -324,4 +371,30 @@ public class CommandManagerWindow extends JFrame implements WindowComponent {
         editorUI.setLocationRelativeTo(this);
         editorUI.setVisible(true);
     }
+
+    private void loadCommandsFromInput() {
+        String commandsText = commandsInputTextField.getText();
+
+        try {
+            List<CommandEntry> commands = parsingContext.parseCommands(commandsText);
+            List<DriverCommand> driverCommands = CommandParser.parseEntryListToDriverCommand(commands);
+
+            commandManager.setCurrentCommand(
+                    driverCommands,
+                    commandsText
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateCurrentStrategyLabel() {
+        currentStrategyLabel.setText("Current: " + parsingContext.getCurrentStrategyName());
+    }
+
+    public void addParsingStrategy(ParsingStrategy strategy) {
+        parsingContext.registerStrategy(strategy);
+        strategyComboBox.addItem(strategy);
+    }
+
 }

@@ -1,5 +1,11 @@
 package edu.kis.powp.jobs2d.command;
 
+import edu.kis.powp.jobs2d.command.entries.CommandEntry;
+import edu.kis.powp.jobs2d.command.manager.CommandParsingStrategiesManager;
+import edu.kis.powp.jobs2d.command.strategy.CsvParsingStrategy;
+import edu.kis.powp.jobs2d.command.strategy.JsonParsingStrategy;
+import edu.kis.powp.jobs2d.command.strategy.ParsingStrategy;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -195,6 +201,79 @@ class ComplexCommandTest {
     }
 
 
+    static void testJsonCommandImport() {
+        ComplexCommand.Builder builder1 = new ComplexCommand.Builder();
+        builder1.addCommand(new SetPositionCommand(100, 0));
+        builder1.addCommand(new OperateToCommand(100, 100));
+        builder1.addCommand(new OperateToCommand(0, 100));
+        builder1.addCommand(new OperateToCommand(0, 0));
+        ComplexCommand command1 = builder1.build();
+
+        String commandsJsonText = "[\n" +
+                "  {\"commandName\": \"setPosition\", \"x\": 100, \"y\": 0},\n" +
+                "  {\"commandName\": \"operateTo\", \"x\": 100, \"y\": 100},\n" +
+                "  {\"commandName\": \"operateTo\", \"x\": 0, \"y\": 100},\n" +
+                "  {\"commandName\": \"operateTo\", \"x\": 0, \"y\": 0}\n" +
+                "]";
+
+        List<ParsingStrategy> parsingStrategies = new ArrayList<>();
+        parsingStrategies.add(new JsonParsingStrategy());
+        parsingStrategies.add(new CsvParsingStrategy());
+        CommandParsingStrategiesManager commandParsingStrategiesManager = new CommandParsingStrategiesManager(parsingStrategies);
+
+        List<CommandEntry> commandEntries = commandParsingStrategiesManager.parseCommands(commandsJsonText);
+
+        List<DriverCommand> driverCommandList = CommandParser.parseEntryListToDriverCommand(commandEntries);
+
+        ComplexCommand.Builder builder2 = new ComplexCommand.Builder();
+        builder2.addCommands(driverCommandList);
+
+        ComplexCommand command2 = builder2.build();
+
+        if (!command1.equals(command2)) {
+            System.out.println("testJsonCommandImport failed");
+        } else {
+            System.out.println("testJsonCommandImport passed");
+        }
+    }
+
+    static void testCsvCommandImport() {
+        ComplexCommand.Builder builder1 = new ComplexCommand.Builder();
+        builder1.addCommand(new SetPositionCommand(100, 0));
+        builder1.addCommand(new OperateToCommand(100, 100));
+        builder1.addCommand(new OperateToCommand(0, 100));
+        builder1.addCommand(new OperateToCommand(0, 0));
+        ComplexCommand command1 = builder1.build();
+
+
+        String commandsCsvText = "commandName,x,y\n" +
+                        "setPosition,100,0\n" +
+                        "operateTo,100,100\n" +
+                        "operateTo,0,100\n" +
+                        "operateTo,0,0";
+
+        List<ParsingStrategy> parsingStrategies = new ArrayList<>();
+        parsingStrategies.add(new JsonParsingStrategy());
+        parsingStrategies.add(new CsvParsingStrategy());
+        CommandParsingStrategiesManager commandParsingStrategiesManager = new CommandParsingStrategiesManager(parsingStrategies);
+
+        List<CommandEntry> commandEntries = commandParsingStrategiesManager.parseCommands(commandsCsvText);
+
+        List<DriverCommand> driverCommandList = CommandParser.parseEntryListToDriverCommand(commandEntries);
+
+        ComplexCommand.Builder builder2 = new ComplexCommand.Builder();
+        builder2.addCommands(driverCommandList);
+
+        ComplexCommand command2 = builder2.build();
+
+        if (!command1.equals(command2)) {
+            System.out.println("testCsvCommandImport failed");
+        } else {
+            System.out.println("testCsvCommandImport passed");
+        }
+    }
+
+
     public static void main(String[] args) {
         testIterator();
         testAddCommand();
@@ -208,5 +287,7 @@ class ComplexCommandTest {
         testBuilderAddCommand();
         testBuilderAddCommands();
         testEquals();
+        testJsonCommandImport();
+        testCsvCommandImport();
     }
 }
