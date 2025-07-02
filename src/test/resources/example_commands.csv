@@ -1,0 +1,7 @@
+commandName,x,y
+setPosition,150,0
+operateTo,185,100
+operateTo,100,40
+operateTo,200,40
+operateTo,115,100
+operateTo,150,0

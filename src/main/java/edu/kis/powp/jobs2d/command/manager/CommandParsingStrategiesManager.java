@@ -16,7 +16,8 @@ public class CommandParsingStrategiesManager {
     }
 
     public CommandParsingStrategiesManager(List<ParsingStrategy> availableStrategies) {
-        this.availableStrategies = availableStrategies;
+        this.availableStrategies = new ArrayList<>();
+        this.availableStrategies.addAll(availableStrategies);
     }
 
     public void registerStrategy(ParsingStrategy strategy) {

@@ -2,6 +2,9 @@ package edu.kis.powp.jobs2d.command;
 
 import edu.kis.powp.jobs2d.command.entries.CommandEntry;
 import edu.kis.powp.jobs2d.command.manager.CommandParsingStrategiesManager;
+import edu.kis.powp.jobs2d.command.strategy.CsvParsingStrategy;
+import edu.kis.powp.jobs2d.command.strategy.JsonParsingStrategy;
+import edu.kis.powp.jobs2d.command.strategy.ParsingStrategy;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -213,9 +216,12 @@ class ComplexCommandTest {
                 "  {\"commandName\": \"operateTo\", \"x\": 0, \"y\": 0}\n" +
                 "]";
 
-        CommandParsingStrategiesManager context = new CommandParsingStrategiesManager();
+        List<ParsingStrategy> parsingStrategies = new ArrayList<>();
+        parsingStrategies.add(new JsonParsingStrategy());
+        parsingStrategies.add(new CsvParsingStrategy());
+        CommandParsingStrategiesManager commandParsingStrategiesManager = new CommandParsingStrategiesManager(parsingStrategies);
 
-        List<CommandEntry> commandEntries = context.parseCommands(commandsJsonText);
+        List<CommandEntry> commandEntries = commandParsingStrategiesManager.parseCommands(commandsJsonText);
 
         List<DriverCommand> driverCommandList = CommandParser.parseEntryListToDriverCommand(commandEntries);
 
@@ -246,9 +252,12 @@ class ComplexCommandTest {
                         "operateTo,0,100\n" +
                         "operateTo,0,0";
 
-        CommandParsingStrategiesManager context = new CommandParsingStrategiesManager();
+        List<ParsingStrategy> parsingStrategies = new ArrayList<>();
+        parsingStrategies.add(new JsonParsingStrategy());
+        parsingStrategies.add(new CsvParsingStrategy());
+        CommandParsingStrategiesManager commandParsingStrategiesManager = new CommandParsingStrategiesManager(parsingStrategies);
 
-        List<CommandEntry> commandEntries = context.parseCommands(commandsCsvText);
+        List<CommandEntry> commandEntries = commandParsingStrategiesManager.parseCommands(commandsCsvText);
 
         List<DriverCommand> driverCommandList = CommandParser.parseEntryListToDriverCommand(commandEntries);
 
